@@ -46,13 +46,20 @@
   --sans: var(--font-plex-sans), system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: var(--font-plex-mono), ui-monospace, "SFMono-Regular", Menlo, monospace;
 
-  /* Fluid type: rem + vw inside clamp, never bare vw (keeps browser zoom working). */
+  /* Page unit, the scrolling-page counterpart to the board's --u: width drives it,
+     viewport height caps it, so a short laptop keeps its screen for content instead of
+     spending it on a title. Display sizes and vertical rhythm are multiples of it;
+     reading text is not, since it must not shrink on a short window.
+       390x844 → 9.3px   320x568 → 7.6px   1280x600 → 10px   1440x900 → 15px */
+  --pu: min(calc(100vw / 42), calc(100svh / 60));
+
+  /* Fluid type: rem floors keep browser zoom and large-text settings working. */
   --text-board: clamp(2.5rem, 1rem + 6.667vw, 7rem);
   --text-board-2: clamp(2.1rem, 1rem + 4.2vw, 5rem);
   --text-hero: var(--text-board);
-  --text-page: clamp(2.5rem, 1.1rem + 5vw, 5.5rem);
-  --text-h2: clamp(2.1rem, 1.2rem + 3vw, 4rem);
-  --text-h3: clamp(1.35rem, 1.2rem + 0.6vw, 1.7rem);
+  --text-page: clamp(2rem, calc(var(--pu) * 5.2), 5rem);
+  --text-h2: clamp(1.7rem, calc(var(--pu) * 3.5), 3.4rem);
+  --text-h3: clamp(1.25rem, calc(var(--pu) * 1.5), 1.7rem);
   --text-hand: clamp(1.4rem, 1.1rem + 1vw, 2rem);
   --text-formal: clamp(1.15rem, 0.95rem + 0.9vw, 1.7rem);
   --text-lede: clamp(1.05rem, 1rem + 0.28vw, 1.25rem);
@@ -62,7 +69,7 @@
 
   --max: 76rem;
   --gutter: clamp(1rem, 0.167rem + 3.704vw, 3.5rem);
-  --section-space: clamp(4.5rem, 3rem + 6vw, 8.5rem);
+  --section-space: clamp(2.75rem, calc(var(--pu) * 6.4), 7rem);
   --radius: 3px;
   --radius-lg: 6px;
   --header-h: 4rem;
@@ -297,7 +304,7 @@ em {
 
 .eyebrow {
   color: var(--gold);
-  margin-bottom: 1.5rem;
+  margin-bottom: clamp(0.75rem, calc(var(--pu) * 1.3), 1.5rem);
 }
 
 .eyebrow-rule {
@@ -896,7 +903,7 @@ p + .p {
 }
 
 .hero-body {
-  margin-top: 1.75rem;
+  margin-top: clamp(0.85rem, calc(var(--pu) * 1.6), 1.75rem);
   max-width: 36rem;
   font-size: var(--text-lede);
   line-height: 1.6;
@@ -2135,13 +2142,13 @@ p + .p {
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  padding-block: clamp(3.5rem, 8vw, 6.5rem);
+  padding-block: clamp(1.75rem, calc(var(--pu) * 4.4), 5rem);
 }
 
 .page-hero-layout {
   display: grid;
   grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.8fr);
-  gap: clamp(2rem, 5vw, 4rem);
+  gap: clamp(1.25rem, calc(var(--pu) * 2.6), 3.5rem);
   align-items: end;
 }
 
@@ -2162,11 +2169,11 @@ p + .p {
 }
 
 .consult-aside {
-  padding: 1.5rem;
+  padding: clamp(0.9rem, calc(var(--pu) * 1.5), 1.5rem);
   border: 1px solid var(--ink-line);
   border-radius: var(--radius-lg);
   background: rgb(27 28 26 / 0.7);
-  font-size: 1.05rem;
+  font-size: clamp(0.95rem, calc(var(--pu) * 0.105), 1.05rem);
 }
 
 .consult-aside .katex-display {
