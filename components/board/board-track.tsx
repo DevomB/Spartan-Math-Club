@@ -29,7 +29,7 @@ const REDUCE = "(prefers-reduced-motion: reduce)";
 /** A touch gesture this far sideways, and mostly sideways, steps one panel. */
 const SWIPE_PX = 48;
 /** Ghost formulas move at this % of panel speed; keep in sync with board-run.tsx. */
-const GHOST_DRIFT = 90;
+const GHOST_DRIFT = 100;
 
 function subscribe(callback: () => void) {
   const queries = [TALL, REDUCE].map((query) => window.matchMedia(query));
