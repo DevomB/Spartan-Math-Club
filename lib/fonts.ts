@@ -6,11 +6,11 @@ import localFont from "next/font/local";
  * with the typeset math. Copied from katex/dist/fonts (MIT).
  */
 export const computerModern = localFont({
+  // Regular and italic only: no rule pairs var(--serif) with a bold weight, and the
+  // bold files were 41KB of download nothing asked for.
   src: [
     { path: "./fonts/KaTeX_Main-Regular.woff2", weight: "400", style: "normal" },
     { path: "./fonts/KaTeX_Main-Italic.woff2", weight: "400", style: "italic" },
-    { path: "./fonts/KaTeX_Main-Bold.woff2", weight: "700", style: "normal" },
-    { path: "./fonts/KaTeX_Main-BoldItalic.woff2", weight: "700", style: "italic" },
   ],
   variable: "--font-cm",
   display: "swap",
@@ -31,13 +31,21 @@ export const plexMono = IBM_Plex_Mono({
   weight: ["400", "500"],
 });
 
-/** Board face (brand v2.1). Display text only, never below 24px. */
+/**
+ * Board face (brand v2.1). Display text only, never below 24px.
+ *
+ * It is a 198KB sketch face — the outlines are the size, not the character set
+ * (subsetting to Latin-1 saves 4%). So it is not preloaded: it would compete with
+ * the document and CSS on a phone, and headings render immediately in the metric-
+ * matched "Fredericka Fallback" face declared in globals.css until it arrives.
+ */
 export const fredericka = Fredericka_the_Great({
   subsets: ["latin"],
   variable: "--font-fredericka",
   display: "swap",
   weight: "400",
-  // Next has no fallback metrics for this face; skip the size-adjust shim.
+  preload: false,
+  // Next has no metrics for this face; globals.css declares the fallback by hand.
   adjustFontFallback: false,
 });
 
@@ -47,4 +55,6 @@ export const caveat = Caveat({
   variable: "--font-caveat",
   display: "swap",
   weight: ["500", "700"],
+  // Decorative labels: let the metric-matched fallback show first (73KB off the critical path).
+  preload: false,
 });

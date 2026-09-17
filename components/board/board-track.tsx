@@ -1,15 +1,6 @@
 "use client";
 
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  useSyncExternalStore,
-  type FocusEvent,
-  type ReactNode,
-  type TouchEvent,
-} from "react";
+import { useCallback, useEffect, useRef, useState, type FocusEvent, type ReactNode, type TouchEvent } from "react";
 
 /**
  * The sideways blackboard (brand v2.1 §5), as progressive enhancement:
@@ -31,18 +22,24 @@ const SWIPE_PX = 48;
 /** Ghost formulas move at this % of panel speed; keep in sync with board-run.tsx. */
 const GHOST_DRIFT = 100;
 
-function subscribe(callback: () => void) {
-  const queries = [TALL, REDUCE].map((query) => window.matchMedia(query));
-  queries.forEach((query) => query.addEventListener("change", callback));
-  return () => queries.forEach((query) => query.removeEventListener("change", callback));
-}
-
 function readMode(): Mode {
   if (window.matchMedia(REDUCE).matches) return "stack";
   return window.matchMedia(TALL).matches ? "pan" : "stack";
 }
 
-const serverMode = (): Mode => "stack";
+/**
+ * Runs from a blocking inline script (BOARD_MODE_SCRIPT) the moment the board markup is
+ * parsed, so the very first paint already has the right layout. Without it the server's
+ * "stack" markup painted first and hydration moved every panel: CLS ≈ 0.45 on the home page.
+ * With no JavaScript the script never runs and the stack markup stands.
+ */
+export const BOARD_MODE_SCRIPT = `(function(){var s=document.currentScript,r=s&&s.previousElementSibling;if(!r||!r.classList.contains("run"))return;var m=matchMedia("${REDUCE}").matches||!matchMedia("${TALL}").matches?"stack":"pan";r.setAttribute("data-mode",m)})()`;
+
+/** The mode the inline script already applied, so hydration agrees with what is on screen. */
+function initialMode(): Mode {
+  if (typeof window === "undefined") return "stack";
+  return readMode();
+}
 
 /** Native scroll anchoring (Chromium, Firefox) keeps content in place when layout above it changes. */
 function supportsScrollAnchoring(): boolean {
@@ -62,7 +59,16 @@ export function BoardTrack({
   hints?: { pan: ReactNode; swipe: ReactNode };
   children: ReactNode;
 }) {
-  const mediaMode = useSyncExternalStore(subscribe, readMode, serverMode);
+  const [mediaMode, setMediaMode] = useState<Mode>(initialMode);
+
+  // Keep following the media queries after hydration (rotation, resize, motion preference).
+  useEffect(() => {
+    const queries = [TALL, REDUCE].map((query) => window.matchMedia(query));
+    const sync = () => setMediaMode(readMode());
+    sync();
+    queries.forEach((query) => query.addEventListener("change", sync));
+    return () => queries.forEach((query) => query.removeEventListener("change", sync));
+  }, []);
   // Set when pan layout would clip a panel; cleared on resize so pan is retried.
   const [clipped, setClipped] = useState(false);
   const mode: Mode = mediaMode === "pan" && clipped ? "stack" : mediaMode;
@@ -332,6 +338,8 @@ export function BoardTrack({
     <section
       ref={runRef}
       className="run"
+      // The inline script sets this before paint; the server always says "stack".
+      suppressHydrationWarning
       data-mode={mode}
       style={{ ["--n" as string]: n }}
       aria-label="The board"

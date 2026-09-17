@@ -40,7 +40,7 @@
   --focus-light: var(--blue);
   --focus-dark: var(--blue);
 
-  --board-font: var(--font-fredericka), "Cabin Sketch", "Chalkboard SE", cursive;
+  --board-font: var(--font-fredericka), "Fredericka Fallback", "Chalkboard SE", Georgia, cursive;
   --hand: var(--font-caveat), "Chalkboard SE", cursive;
   --serif: var(--font-cm), "Latin Modern Roman", "CMU Serif", Georgia, serif;
   --sans: var(--font-plex-sans), system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -468,6 +468,19 @@ em {
   scrollbar-width: thin;
 }
 
+/* Decorative notation is aria-hidden, so it must never be focusable; clip it
+   instead of making it a scrollable region (WCAG 2.1.1 / aria-hidden-focus). */
+.tex--display[aria-hidden="true"],
+.formal,
+.formal-line,
+.truth-formula {
+  overflow: hidden;
+}
+
+.tex--display:focus-visible {
+  outline-offset: 2px;
+}
+
 .tex--display .katex-display {
   margin: 1.1rem 0;
 }
@@ -722,7 +735,7 @@ p + .p {
   display: none;
 }
 
-@media (max-width: 859px) {
+@media (max-width: 53.75em) {
   .nav-desktop {
     display: none;
   }
@@ -3695,6 +3708,24 @@ body {
   position: relative;
 }
 
+/* Metric-matched stand-in for the board face while its 198KB file downloads.
+   Overrides measured from FrederickaTheGreat-Regular (upm 1024): ascent 1001,
+   descent 254, line gap 0; size-adjust splits the difference between matching
+   Georgia's x-height (105%) and its lowercase width (93%). Without this the
+   headings resized when the real face arrived — a 0.45 layout shift on 4G. */
+@font-face {
+  font-family: "Fredericka Fallback";
+  src:
+    local("Georgia"),
+    local("Times New Roman"),
+    local("Liberation Serif"),
+    local("DejaVu Serif");
+  size-adjust: 99%;
+  ascent-override: 97.75%;
+  descent-override: 24.8%;
+  line-gap-override: 0%;
+}
+
 /* ---------- Device-test fixes: touch targets, menu alignment, high contrast ---------- */
 
 /* WCAG 2.5.8: the rho slider and arrow links need a comfortable hit area. */
@@ -3739,5 +3770,86 @@ body {
 
   .ticks button[aria-current="true"] span {
     background: Highlight;
+  }
+}
+
+/* ==========================================================================
+   Large text and high zoom (WCAG 1.4.4 / 1.4.10). These queries are in em, so
+   they respond to the reader's font size as well as to browser zoom; px queries
+   only see zoom. Nothing may be clipped by the body's horizontal clip.
+   ========================================================================== */
+
+/* Buttons wrap instead of running off the screen. */
+.btn {
+  white-space: normal;
+  text-wrap: balance;
+}
+
+/* Decorative notation (aria-hidden) clips rather than widening the page. */
+.signature-expr,
+.pillar-signature .tex,
+.footer-qed,
+.footer-signoff {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.pillar-signature,
+.signature {
+  min-width: 0;
+}
+
+/* The answer field and its button stack when the row no longer fits. */
+.answer-row {
+  flex-wrap: wrap;
+}
+
+.answer-input {
+  flex: 1 1 12ch;
+}
+
+@media (max-width: 30em) {
+  /* Proof steps: the label sits above its text instead of in a fixed column. */
+  .proof-step,
+  .proof-steps--wide .proof-step {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.25rem;
+  }
+
+  /* The rho slider gets its own row, so it never collapses to a sliver. */
+  .lorenz-slider {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.5rem;
+  }
+
+  .lorenz-slider label {
+    min-width: 0;
+  }
+
+  .lorenz-reset {
+    justify-self: start;
+  }
+
+  /* Menu type scales with the viewport so long labels keep their row. */
+  .mobile-nav-sheet a {
+    grid-template-columns: auto auto minmax(0, 1fr);
+    gap: 0 0.4rem;
+    font-size: min(2rem, 7.5vw);
+  }
+
+  .mobile-nav-sheet .nav-glyph {
+    font-size: 0.7em;
+  }
+
+  .mobile-foot {
+    font-size: min(1.4rem, 5vw);
+  }
+}
+
+/* Very little room per line: keep the crest, drop the wordmark text.
+   The header link keeps its accessible name ("Spartan Math Club, home"). */
+@media (max-width: 15em) {
+  .lockup-text {
+    display: none;
   }
 }
