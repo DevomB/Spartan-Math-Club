@@ -4,9 +4,10 @@ import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type Fo
 
 /**
  * The sideways blackboard (brand v2.1 §5), as progressive enhancement:
- * - pan   (≥ 860px, motion OK): vertical scroll pans the board one panel per screen
+ * - pan   (≥ 860px wide and ≥ 640px tall, motion OK): vertical scroll pans the board
  * - swipe (< 860px): native horizontal scroll-snap, the next panel peeks in
- * - stack (reduced motion, no JS, server render): ordinary vertical sections
+ * - stack (reduced motion, short desktop screens, no JS, server render): vertical sections
+ * Pan also falls back to stack if any panel's content would be clipped (zoom, large text).
  * Panels stay in DOM order with real headings, so reading order never changes.
  */
 
@@ -14,17 +15,19 @@ type Mode = "pan" | "swipe" | "stack";
 export type PanelMeta = { id: string; title: string };
 
 const WIDE = "(min-width: 860px)";
+const TALL = "(min-height: 640px)";
 const REDUCE = "(prefers-reduced-motion: reduce)";
 
 function subscribe(callback: () => void) {
-  const queries = [window.matchMedia(WIDE), window.matchMedia(REDUCE)];
+  const queries = [WIDE, TALL, REDUCE].map((query) => window.matchMedia(query));
   queries.forEach((query) => query.addEventListener("change", callback));
   return () => queries.forEach((query) => query.removeEventListener("change", callback));
 }
 
 function readMode(): Mode {
   if (window.matchMedia(REDUCE).matches) return "stack";
-  return window.matchMedia(WIDE).matches ? "pan" : "swipe";
+  if (!window.matchMedia(WIDE).matches) return "swipe";
+  return window.matchMedia(TALL).matches ? "pan" : "stack";
 }
 
 const serverMode = (): Mode => "stack";
@@ -42,7 +45,10 @@ export function BoardTrack({
   hints?: { pan: ReactNode; swipe: ReactNode };
   children: ReactNode;
 }) {
-  const mode = useSyncExternalStore(subscribe, readMode, serverMode);
+  const mediaMode = useSyncExternalStore(subscribe, readMode, serverMode);
+  // Set when pan layout would clip a panel; cleared on resize so pan is retried.
+  const [clipped, setClipped] = useState(false);
+  const mode: Mode = mediaMode === "pan" && clipped ? "stack" : mediaMode;
   const runRef = useRef<HTMLElement>(null);
   const stickRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
@@ -50,6 +56,43 @@ export function BoardTrack({
   const [current, setCurrent] = useState(0);
   const [announced, setAnnounced] = useState(0);
   const n = panels.length;
+
+  // Pan guard: if any panel's content is taller than the board, stack instead.
+  useEffect(() => {
+    if (mediaMode !== "pan") return;
+    if (clipped) {
+      const retry = () => setClipped(false);
+      window.addEventListener("resize", retry, { once: true });
+      return () => window.removeEventListener("resize", retry);
+    }
+    const measure = () => {
+      const overflows = Array.from(trackRef.current?.querySelectorAll<HTMLElement>(":scope > .panel") ?? []).some(
+        (panel) => {
+          const pin = panel.querySelector<HTMLElement>(".pin");
+          if (!pin) return false;
+          const style = getComputedStyle(panel);
+          const available = panel.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
+          return pin.scrollHeight > available + 2;
+        },
+      );
+      if (overflows) setClipped(true);
+    };
+    let frame = requestAnimationFrame(measure);
+    const observer = new ResizeObserver(() => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(measure);
+    });
+    if (stickRef.current) observer.observe(stickRef.current);
+    // Web fonts change line heights after first paint.
+    document.fonts?.ready.then(() => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(measure);
+    });
+    return () => {
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+    };
+  }, [mediaMode, clipped]);
 
   // Screen readers hear the panel once scrolling settles, not on every step.
   useEffect(() => {

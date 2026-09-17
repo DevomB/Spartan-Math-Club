@@ -3694,3 +3694,50 @@ body {
 .katex {
   position: relative;
 }
+
+/* ---------- Device-test fixes: touch targets, menu alignment, high contrast ---------- */
+
+/* WCAG 2.5.8: the rho slider and arrow links need a comfortable hit area. */
+.lorenz-slider input[type="range"] {
+  height: 2.75rem;
+}
+
+.btn--link {
+  min-height: 44px;
+}
+
+/* Keep menu labels in one column whether or not an item has a glyph. */
+.mobile-nav-sheet a {
+  display: grid;
+  grid-template-columns: 2rem 1.75rem minmax(0, 1fr);
+  align-items: baseline;
+  gap: 0 0.5rem;
+}
+
+.mobile-nav-sheet .nav-glyph {
+  min-width: 0;
+  margin: 0;
+}
+
+/* Windows high contrast: drop the chalk texture so headings stay crisp. */
+@media (forced-colors: active) {
+  .chalky,
+  .section-title,
+  .page-title,
+  .hero-title,
+  .closing-title,
+  .footer-crest,
+  .contradiction,
+  .tex--display .katex-display {
+    filter: none;
+  }
+
+  .run::before,
+  .ghosts {
+    display: none;
+  }
+
+  .ticks button[aria-current="true"] span {
+    background: Highlight;
+  }
+}

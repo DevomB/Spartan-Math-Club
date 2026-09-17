@@ -55,7 +55,7 @@ export function MobileMenu({ items, glyphs = {} }: { items: NavItem[]; glyphs?: 
               <li key={item.href}>
                 <Link href={item.href} onClick={close} className={cn(item.accent && "is-accent")}>
                   <span className="mobile-index">{String(index + 1).padStart(2, "0")}</span>
-                  {glyphs[item.href] ? <span className="nav-glyph">{glyphs[item.href]}</span> : null}
+                  <span className="nav-glyph" aria-hidden="true">{glyphs[item.href] ?? null}</span>
                   {item.label}
                 </Link>
               </li>
