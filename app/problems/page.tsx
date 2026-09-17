@@ -12,6 +12,16 @@ export const metadata = pageMetadata({
   path: "/problems",
 });
 
+const INDEX_ID = "problem-contents";
+
+/**
+ * Runs where it sits in the markup, before first paint, so the contents list is already
+ * open on wide screens: no flash, no layout shift, and the element's real state always
+ * matches what is on screen. Without JS the list stays collapsed behind its summary,
+ * which still works.
+ */
+const INDEX_SCRIPT = `(function(){var d=document.getElementById(${JSON.stringify(INDEX_ID)});if(!d)return;var m=matchMedia("(min-width: 35em)");var s=function(){d.open=m.matches};s();m.addEventListener("change",s)})();`;
+
 export default function ProblemsPage() {
   return (
     <main id="content" tabIndex={-1}>
@@ -46,8 +56,10 @@ export default function ProblemsPage() {
       <section className="section surface-paper" aria-label="Problems">
         <div className="container problems-layout">
           {/* Collapsed on phones, where nine rows of contents pushed the first problem off
-              the screen; CSS forces it open from 560px up, so desktop keeps the full list. */}
-          <details className="problem-index">
+              the screen. From 35em up the script below opens it for real, before paint, so
+              the disclosure state matches what everyone sees — CSS alone would leave a
+              screen reader with a collapsed list that sighted readers can see. */}
+          <details className="problem-index" id={INDEX_ID}>
             <summary aria-label={`Contents: ${problems.length} problems`}>
               <span className="kicker">
                 <span className="kicker-index">§</span>
@@ -71,6 +83,7 @@ export default function ProblemsPage() {
             </ol>
             <Tex className="problem-index-note">{String.raw`\text{Solved} \subseteq \text{Attempted} \subseteq \text{Problems}`}</Tex>
           </details>
+          <script dangerouslySetInnerHTML={{ __html: INDEX_SCRIPT }} />
 
           <div className="problem-stack">
             {problems.map((problem) => (

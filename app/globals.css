@@ -3973,8 +3973,8 @@ body {
   content: " ▴";
 }
 
-/* From the second tier up the list is always visible and the summary is decoration:
-   both the legacy display rule and the modern ::details-content are needed. */
+/* From the second tier up the inline script opens the disclosure for real, so the list
+   is simply visible; the summary becomes a heading rather than a control. */
 @media (min-width: 35em) {
   .problem-index > summary {
     cursor: default;
@@ -3983,20 +3983,6 @@ body {
 
   .problem-index-count {
     display: none;
-  }
-
-  .problem-index:not([open]) > ol,
-  .problem-index:not([open]) > .problem-index-note {
-    display: block;
-  }
-
-  .problem-index:not([open]) > ol {
-    display: grid;
-  }
-
-  .problem-index::details-content {
-    content-visibility: visible;
-    block-size: auto;
   }
 }
 
