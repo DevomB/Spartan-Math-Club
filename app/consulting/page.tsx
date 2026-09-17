@@ -25,7 +25,7 @@ export default function ConsultingPage() {
         eyebrow={consultingCopy.eyebrow}
         title={
           <>
-            Solving your problems with math, <em>one step at a time.</em>
+            Your problems, <em>solved with math.</em>
           </>
         }
         aside={

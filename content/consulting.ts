@@ -7,9 +7,9 @@ const tex = String.raw;
 
 export const consultingCopy = {
   eyebrow: "SMC Consulting",
-  headline: "Solving your problems with math, one step at a time.",
+  headline: "Your problems, solved with math.",
   /** Hero: short enough to leave room for the buttons on a small phone. */
-  lede: "Spartan Math Club's consulting division takes real questions from organizations — forecasts, pricing, schedules, experiments, models.",
+  lede: "One step at a time. Spartan Math Club's consulting division takes real questions from organizations — forecasts, pricing, schedules, experiments, models.",
   /** The rest of that thought, carried into the services section. */
   method:
     "We answer them the way mathematicians do: define the problem precisely, solve it rigorously, check the work, and explain it plainly.",
