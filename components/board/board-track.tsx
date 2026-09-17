@@ -133,9 +133,13 @@ export function BoardTrack({
     return { stickTop, runTop, travel };
   }, []);
 
-  // Where the reader is, kept across layout changes: the panel index and whether the
-  // board is on screen at all (so a mode switch never yanks someone reading further down).
-  const place = useRef({ index: 0, x: 0, inBoard: false, belowBoard: false, runBottom: 0 });
+  // Where the reader is, kept across layout changes: the panel index, fractional pan
+  // position, and whether the board is on screen or already scrolled past.
+  const place = useRef({ index: 0, x: 0, inBoard: false, belowBoard: false });
+  // The board's own size at the last layout we accounted for. Scroll corrections are
+  // based on changes to this, never on scroll position, so a resize that fires during a
+  // scroll gesture (mobile toolbars collapsing) is a no-op and momentum is left alone.
+  const size = useRef({ runHeight: 0, travel: 0 });
 
   const update = useCallback(() => {
     const track = trackRef.current;
@@ -143,7 +147,6 @@ export function BoardTrack({
     const runBox = runRef.current?.getBoundingClientRect();
     place.current.inBoard = Boolean(runBox && runBox.bottom > window.innerHeight * 0.25 && runBox.top < window.innerHeight * 0.75);
     place.current.belowBoard = Boolean(runBox && runBox.bottom <= window.innerHeight * 0.25);
-    place.current.runBottom = runBox?.bottom ?? 0;
     if (mode === "stack") {
       const line = window.innerHeight * 0.35;
       const index = panelElements().reduce((found, panel, i) => (panel.getBoundingClientRect().top <= line ? i : found), 0);
@@ -198,15 +201,17 @@ export function BoardTrack({
     const previous = previousMode.current;
     previousMode.current = mode;
     if (previous === null || previous === mode) return;
-    const { index, inBoard, belowBoard, runBottom } = place.current;
+    const { index, inBoard, belowBoard } = place.current;
+    const heightBefore = size.current.runHeight;
     let frame = 0;
     if (inBoard) {
       frame = requestAnimationFrame(() => go(index, true));
     } else if (belowBoard) {
-      // The board's height changed above the reader: shift so the content below stays put.
+      // The board changed height above the reader: shift by exactly that, so content below stays put.
       frame = requestAnimationFrame(() => {
-        const bottom = runRef.current?.getBoundingClientRect().bottom;
-        if (bottom !== undefined) window.scrollBy({ top: bottom - runBottom, behavior: "instant" });
+        const heightAfter = runRef.current?.offsetHeight ?? heightBefore;
+        const delta = heightAfter - heightBefore;
+        if (heightBefore && delta) window.scrollBy({ top: delta, behavior: "instant" });
       });
     }
     return () => cancelAnimationFrame(frame);
@@ -221,31 +226,39 @@ export function BoardTrack({
     const schedule = () => {
       if (!frame) frame = requestAnimationFrame(() => ((frame = 0), update()));
     };
-    // In pan mode a resize (window drag, mobile toolbar collapsing) changes the scroll
-    // distance per panel. Hold the reader's exact position on the board, fractional
-    // included, so nothing jumps and no rounding moves them onto a neighbor.
+    const measureSize = () => {
+      size.current = { runHeight: runRef.current?.offsetHeight ?? 0, travel: geometry()?.travel ?? 0 };
+    };
+    // Resizes only move the page when the board itself changed size. Mobile toolbars
+    // firing `resize` mid-scroll leave svh-based heights untouched, so this does nothing
+    // and momentum scrolling continues.
     const onResize = () => {
-      // Reading below the board: viewport-relative panel heights change on resize, so keep
-      // the board's bottom edge (and everything after it) where the reader left it.
-      if (place.current.belowBoard) {
-        const bottom = runRef.current?.getBoundingClientRect().bottom;
-        if (bottom !== undefined) window.scrollBy({ top: bottom - place.current.runBottom, behavior: "instant" });
-      }
-      if (mode === "pan" && place.current.inBoard) {
+      const run = runRef.current;
+      if (run) {
+        const runHeight = run.offsetHeight;
         const geo = geometry();
-        if (geo && geo.travel > 0) {
-          const top = geo.runTop - geo.stickTop + (geo.travel * place.current.x) / Math.max(n - 1, 1);
-          window.scrollTo({ top, behavior: "instant" });
+        const travel = geo?.travel ?? 0;
+        const { runHeight: previousHeight, travel: previousTravel } = size.current;
+        if (previousHeight && runHeight !== previousHeight && place.current.belowBoard) {
+          // Keep the content after the board where the reader left it.
+          window.scrollBy({ top: runHeight - previousHeight, behavior: "instant" });
+        } else if (mode === "pan" && geo && travel > 0 && previousTravel && travel !== previousTravel && place.current.inBoard) {
+          // Pan distance per panel changed: hold the exact board position, fractional included.
+          window.scrollTo({ top: geo.runTop - geo.stickTop + (travel * place.current.x) / Math.max(n - 1, 1), behavior: "instant" });
         }
+        size.current = { runHeight, travel };
       }
       schedule();
     };
+    // After a mode switch, record the new layout once the browser has applied it.
+    const sizeFrame = requestAnimationFrame(measureSize);
     schedule();
     window.addEventListener("scroll", schedule, { passive: true });
     window.addEventListener("resize", onResize);
     track?.addEventListener("scroll", schedule, { passive: true });
     return () => {
       cancelAnimationFrame(frame);
+      cancelAnimationFrame(sizeFrame);
       window.removeEventListener("scroll", schedule);
       window.removeEventListener("resize", onResize);
       track?.removeEventListener("scroll", schedule);
