@@ -35,16 +35,16 @@ export const plexMono = IBM_Plex_Mono({
  * Board face (brand v2.1). Display text only, never below 24px.
  *
  * It is a 198KB sketch face — the outlines are the size, not the character set
- * (subsetting to Latin-1 saves 4%). So it is not preloaded: it would compete with
- * the document and CSS on a phone, and headings render immediately in the metric-
- * matched "Fredericka Fallback" face declared in globals.css until it arrives.
+ * (subsetting to Latin-1 saves 4%). It stays preloaded because the board headline is
+ * the largest text on the page: dropping the preload pushed the swap, and with it LCP,
+ * far later. The metric-matched "Fredericka Fallback" in globals.css covers the gap
+ * until it arrives, so the swap no longer moves anything.
  */
 export const fredericka = Fredericka_the_Great({
   subsets: ["latin"],
   variable: "--font-fredericka",
   display: "swap",
   weight: "400",
-  preload: false,
   // Next has no metrics for this face; globals.css declares the fallback by hand.
   adjustFontFallback: false,
 });
