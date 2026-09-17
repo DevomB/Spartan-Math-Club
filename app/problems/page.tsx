@@ -45,11 +45,16 @@ export default function ProblemsPage() {
 
       <section className="section surface-paper" aria-label="Problems">
         <div className="container problems-layout">
-          <nav className="problem-index" aria-label="Problem index">
-            <p className="kicker">
-              <span className="kicker-index">§</span>
-              <span>Contents</span>
-            </p>
+          {/* Collapsed on phones, where nine rows of contents pushed the first problem off
+              the screen; CSS forces it open from 560px up, so desktop keeps the full list. */}
+          <details className="problem-index">
+            <summary aria-label={`Contents: ${problems.length} problems`}>
+              <span className="kicker">
+                <span className="kicker-index">§</span>
+                <span>Contents</span>
+              </span>
+              <span className="problem-index-count">{problems.length}</span>
+            </summary>
             <ol>
               {problems.map((problem) => (
                 <li key={problem.slug}>
@@ -65,7 +70,7 @@ export default function ProblemsPage() {
               ))}
             </ol>
             <Tex className="problem-index-note">{String.raw`\text{Solved} \subseteq \text{Attempted} \subseteq \text{Problems}`}</Tex>
-          </nav>
+          </details>
 
           <div className="problem-stack">
             {problems.map((problem) => (

@@ -8,7 +8,11 @@ const tex = String.raw;
 export const consultingCopy = {
   eyebrow: "SMC Consulting",
   headline: "Solving your problems with math, one step at a time.",
-  lede: "Spartan Math Club's consulting division takes real questions from organizations — forecasts, pricing, schedules, experiments, models — and answers them the way mathematicians do: define it precisely, solve it rigorously, check the work, and explain it plainly.",
+  /** Hero: short enough to leave room for the buttons on a small phone. */
+  lede: "Spartan Math Club's consulting division takes real questions from organizations — forecasts, pricing, schedules, experiments, models.",
+  /** The rest of that thought, carried into the services section. */
+  method:
+    "We answer them the way mathematicians do: define the problem precisely, solve it rigorously, check the work, and explain it plainly.",
   availability: "Taking a limited number of projects this semester.",
 
   services: [

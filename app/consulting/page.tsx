@@ -52,8 +52,9 @@ export default function ConsultingPage() {
         <div className="container">
           <SectionHead index="1" kicker="Services" id="services-heading" title="Mathematics, applied to your actual problem.">
             <p className="lede">
-              Quantitative firms use mathematics to find the edge other people miss. We bring the same habits — precise
-              definitions, honest uncertainty, relentless checking — to organizations that don&apos;t have a quant team.
+              {consultingCopy.method} Quantitative firms use mathematics to find the edge other people miss; we bring the
+              same habits — precise definitions, honest uncertainty, relentless checking — to organizations that
+              don&apos;t have a quant team.
             </p>
           </SectionHead>
           <ul className="services">

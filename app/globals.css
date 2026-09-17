@@ -3929,3 +3929,121 @@ body {
   min-width: 0;
   flex-wrap: wrap;
 }
+
+/* ---------- Problem archive contents: compact on phones ---------- */
+
+.problem-index > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 44px;
+  padding-block: 0.35rem;
+  border-bottom: 1px solid var(--paper-line);
+  cursor: pointer;
+  list-style: none;
+}
+
+.problem-index > summary::-webkit-details-marker {
+  display: none;
+}
+
+.problem-index > summary .kicker {
+  margin-bottom: 0;
+}
+
+.problem-index-count {
+  font-family: var(--mono);
+  font-size: var(--text-label);
+  color: var(--dust);
+}
+
+.problem-index-count::after {
+  content: " ▾";
+}
+
+/* `.problem-index ol { display: grid }` outranks the browser's hidden-when-closed rule,
+   so the closed state has to be stated explicitly. */
+.problem-index:not([open]) > ol,
+.problem-index:not([open]) > .problem-index-note {
+  display: none;
+}
+
+.problem-index[open] .problem-index-count::after {
+  content: " ▴";
+}
+
+/* From the second tier up the list is always visible and the summary is decoration:
+   both the legacy display rule and the modern ::details-content are needed. */
+@media (min-width: 35em) {
+  .problem-index > summary {
+    cursor: default;
+    border-bottom: 0;
+  }
+
+  .problem-index-count {
+    display: none;
+  }
+
+  .problem-index:not([open]) > ol,
+  .problem-index:not([open]) > .problem-index-note {
+    display: block;
+  }
+
+  .problem-index:not([open]) > ol {
+    display: grid;
+  }
+
+  .problem-index::details-content {
+    content-visibility: visible;
+    block-size: auto;
+  }
+}
+
+/* ---------- Page hero on phones: the first screen should reach the buttons ---------- */
+
+@media (max-width: 35em) {
+  /* Two short actions fit side by side; stacking them cost a whole row. */
+  .page-hero .actions {
+    gap: 0.5rem;
+  }
+
+  .page-hero .actions .btn {
+    flex: 1 1 auto;
+    padding-inline: 0.9rem;
+  }
+
+  /* The boxed formula is a flourish, not the message: let it take a quarter of the room. */
+  .consult-aside {
+    padding: 0.9rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .consult-aside .katex-display {
+    margin-bottom: 0.4rem;
+  }
+
+  .consult-aside p {
+    font-size: 0.85rem;
+  }
+
+  .page-hero-layout {
+    gap: 1.25rem;
+  }
+
+  .availability {
+    margin-top: 0.75rem;
+  }
+}
+
+/* Smallest phones (≤360px): long titles wrap to four lines and push the lede off the
+   first screen, so the title gives up a little size and the hero a little padding. */
+@media (max-width: 22.5em) {
+  .page-hero .page-title {
+    font-size: clamp(1.65rem, 9.4vw, 2.2rem);
+  }
+
+  .page-hero {
+    padding-block: clamp(1.5rem, 5vw, 2rem);
+  }
+}
