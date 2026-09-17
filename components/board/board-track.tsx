@@ -58,12 +58,26 @@ export function BoardTrack({
   const n = panels.length;
 
   // Pan guard: if any panel's content is taller than the board, stack instead.
+  const clippedAt = useRef({ width: 0, height: 0 });
   useEffect(() => {
     if (mediaMode !== "pan") return;
     if (clipped) {
-      const retry = () => setClipped(false);
-      window.addEventListener("resize", retry, { once: true });
-      return () => window.removeEventListener("resize", retry);
+      // Retry pan only after a real change in available space, not toolbar collapse or
+      // tiny window drags: debounced, and only if the width changed or the height grew
+      // by at least 80px since the clip. Otherwise the page height would flip mid-scroll.
+      let timer = 0;
+      const onResize = () => {
+        window.clearTimeout(timer);
+        timer = window.setTimeout(() => {
+          const { width, height } = clippedAt.current;
+          if (window.innerWidth !== width || window.innerHeight - height >= 80) setClipped(false);
+        }, 250);
+      };
+      window.addEventListener("resize", onResize);
+      return () => {
+        window.clearTimeout(timer);
+        window.removeEventListener("resize", onResize);
+      };
     }
     const measure = () => {
       const overflows = Array.from(trackRef.current?.querySelectorAll<HTMLElement>(":scope > .panel") ?? []).some(
@@ -75,7 +89,10 @@ export function BoardTrack({
           return pin.scrollHeight > available + 2;
         },
       );
-      if (overflows) setClipped(true);
+      if (overflows) {
+        clippedAt.current = { width: window.innerWidth, height: window.innerHeight };
+        setClipped(true);
+      }
     };
     let frame = requestAnimationFrame(measure);
     const observer = new ResizeObserver(() => {
@@ -116,9 +133,24 @@ export function BoardTrack({
     return { stickTop, runTop, travel };
   }, []);
 
+  // Where the reader is, kept across layout changes: the panel index and whether the
+  // board is on screen at all (so a mode switch never yanks someone reading further down).
+  const place = useRef({ index: 0, x: 0, inBoard: false, belowBoard: false, runBottom: 0 });
+
   const update = useCallback(() => {
     const track = trackRef.current;
     if (!track) return;
+    const runBox = runRef.current?.getBoundingClientRect();
+    place.current.inBoard = Boolean(runBox && runBox.bottom > window.innerHeight * 0.25 && runBox.top < window.innerHeight * 0.75);
+    place.current.belowBoard = Boolean(runBox && runBox.bottom <= window.innerHeight * 0.25);
+    place.current.runBottom = runBox?.bottom ?? 0;
+    if (mode === "stack") {
+      const line = window.innerHeight * 0.35;
+      const index = panelElements().reduce((found, panel, i) => (panel.getBoundingClientRect().top <= line ? i : found), 0);
+      place.current.index = index;
+      setCurrent(index);
+      return;
+    }
     if (mode === "pan") {
       const geo = geometry();
       if (!geo || geo.travel <= 0) return;
@@ -126,10 +158,14 @@ export function BoardTrack({
       const x = progress * (n - 1);
       track.style.transform = `translate3d(${(-x * 100) / n}%, 0, 0)`;
       if (ghostsRef.current) ghostsRef.current.style.transform = `translate3d(${-x * 35}%, 0, 0)`;
+      place.current.index = Math.round(x);
+      place.current.x = x;
       setCurrent(Math.round(x));
     } else if (mode === "swipe") {
       const first = panelElements()[0];
-      setCurrent(Math.round(track.scrollLeft / (first?.offsetWidth || 1)));
+      const index = Math.round(track.scrollLeft / (first?.offsetWidth || 1));
+      place.current.index = index;
+      setCurrent(index);
     }
   }, [geometry, mode, n, panelElements]);
 
@@ -156,6 +192,26 @@ export function BoardTrack({
     [geometry, mode, n, panelElements],
   );
 
+  // On a real mode switch (not first hydration), keep the reader on the panel they were reading.
+  const previousMode = useRef<Mode | null>(null);
+  useEffect(() => {
+    const previous = previousMode.current;
+    previousMode.current = mode;
+    if (previous === null || previous === mode) return;
+    const { index, inBoard, belowBoard, runBottom } = place.current;
+    let frame = 0;
+    if (inBoard) {
+      frame = requestAnimationFrame(() => go(index, true));
+    } else if (belowBoard) {
+      // The board's height changed above the reader: shift so the content below stays put.
+      frame = requestAnimationFrame(() => {
+        const bottom = runRef.current?.getBoundingClientRect().bottom;
+        if (bottom !== undefined) window.scrollBy({ top: bottom - runBottom, behavior: "instant" });
+      });
+    }
+    return () => cancelAnimationFrame(frame);
+  }, [mode, go]);
+
   // Reset transforms whenever the mode changes, then sync position.
   useEffect(() => {
     const track = trackRef.current;
@@ -165,17 +221,36 @@ export function BoardTrack({
     const schedule = () => {
       if (!frame) frame = requestAnimationFrame(() => ((frame = 0), update()));
     };
+    // In pan mode a resize (window drag, mobile toolbar collapsing) changes the scroll
+    // distance per panel. Hold the reader's exact position on the board, fractional
+    // included, so nothing jumps and no rounding moves them onto a neighbor.
+    const onResize = () => {
+      // Reading below the board: viewport-relative panel heights change on resize, so keep
+      // the board's bottom edge (and everything after it) where the reader left it.
+      if (place.current.belowBoard) {
+        const bottom = runRef.current?.getBoundingClientRect().bottom;
+        if (bottom !== undefined) window.scrollBy({ top: bottom - place.current.runBottom, behavior: "instant" });
+      }
+      if (mode === "pan" && place.current.inBoard) {
+        const geo = geometry();
+        if (geo && geo.travel > 0) {
+          const top = geo.runTop - geo.stickTop + (geo.travel * place.current.x) / Math.max(n - 1, 1);
+          window.scrollTo({ top, behavior: "instant" });
+        }
+      }
+      schedule();
+    };
     schedule();
     window.addEventListener("scroll", schedule, { passive: true });
-    window.addEventListener("resize", schedule);
+    window.addEventListener("resize", onResize);
     track?.addEventListener("scroll", schedule, { passive: true });
     return () => {
       cancelAnimationFrame(frame);
       window.removeEventListener("scroll", schedule);
-      window.removeEventListener("resize", schedule);
+      window.removeEventListener("resize", onResize);
       track?.removeEventListener("scroll", schedule);
     };
-  }, [mode, update]);
+  }, [mode, update, geometry, n]);
 
   // Deep links (/#events) resolve to panels: on load, on hashchange, and on same-page link clicks.
   useEffect(() => {
