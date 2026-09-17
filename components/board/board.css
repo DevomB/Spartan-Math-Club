@@ -21,7 +21,7 @@
   --b-display: clamp(2rem, calc(var(--u) * 5.6), 7rem);
   --b-h2: clamp(1.65rem, calc(var(--u) * 4.4), 5rem);
   --b-hand: clamp(1.15rem, calc(var(--u) * 2.6), 2.1rem);
-  --b-formal: clamp(0.95rem, calc(var(--u) * 2.1), 1.75rem);
+  --b-formal: clamp(0.9rem, calc(var(--u) * 1.85), 1.75rem);
   --b-body: clamp(0.95rem, calc(var(--u) * 1.75), 1.25rem);
   --b-small: clamp(0.8rem, calc(var(--u) * 1.5), 1.05rem);
   --b-label: clamp(0.62rem, calc(var(--u) * 1.2), 0.78rem);
@@ -478,7 +478,8 @@
 /* ---------- Phones: same full-viewport slides, tightened content ---------- */
 
 @media (max-width: 559px) {
-  .sticks {
+  .sticks,
+  .counter-hint {
     display: none;
   }
 

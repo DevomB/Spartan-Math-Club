@@ -35,11 +35,13 @@ function shortRange(startsAt: string, endsAt: string): string {
 }
 
 /**
- * Ghost formulas drift at 35% of the panel speed, so a ghost at `left` sits at
- * (left − 35·i)% of the screen while panel i is in view. Each is placed in its
- * panel's empty right side (≈ 68–88%), above or below the text band.
+ * Ghost formulas drift at 90% of the panel speed (a slight parallax), so a ghost at
+ * `left` sits at (left − 90·i)% of the screen while panel i is in view. That keeps each
+ * ghost on its own panel instead of sliding across a neighbor's text. Each is placed in
+ * its panel's empty right side (≈ 60–80%), above or below the text band.
+ * Keep in sync with GHOST_DRIFT in board-track.tsx.
  */
-const GHOST_DRIFT = 35;
+const GHOST_DRIFT = 90;
 const GHOSTS: Array<{ tex: string; panel: number; x: number; top: string }> = [
   { tex: tex`e^{i\pi} + 1 = 0`, panel: 0, x: 72, top: "12%" },
   { tex: tex`\sum 1/n^2 = \pi^2/6`, panel: 0, x: 76, top: "78%" },

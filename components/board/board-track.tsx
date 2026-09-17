@@ -28,6 +28,8 @@ const TALL = "(min-height: 480px)";
 const REDUCE = "(prefers-reduced-motion: reduce)";
 /** A touch gesture this far sideways, and mostly sideways, steps one panel. */
 const SWIPE_PX = 48;
+/** Ghost formulas move at this % of panel speed; keep in sync with board-run.tsx. */
+const GHOST_DRIFT = 90;
 
 function subscribe(callback: () => void) {
   const queries = [TALL, REDUCE].map((query) => window.matchMedia(query));
@@ -175,7 +177,7 @@ export function BoardTrack({
       const progress = Math.min(1, Math.max(0, (window.scrollY + geo.stickTop - geo.runTop) / geo.travel));
       const x = progress * (n - 1);
       track.style.transform = `translate3d(${(-x * 100) / n}%, 0, 0)`;
-      if (ghostsRef.current) ghostsRef.current.style.transform = `translate3d(${-x * 35}%, 0, 0)`;
+      if (ghostsRef.current) ghostsRef.current.style.transform = `translate3d(${-x * GHOST_DRIFT}%, 0, 0)`;
       place.current.index = Math.round(x);
       place.current.x = x;
       setCurrent(Math.round(x));
