@@ -60,7 +60,7 @@ export function ShouldICome({ symbols }: { symbols: Symbols }) {
           So come Monday.
         </p>
       </div>
-      <div className="truth-table-wrap">
+      <div className="truth-table-wrap" tabIndex={0} role="region" aria-label="Truth table for Come">
         <table className="truth-table">
           <caption className="visually-hidden">
             Truth table for Come: every combination of curious and good at math evaluates to true.

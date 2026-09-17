@@ -3466,7 +3466,6 @@ body {
 
 .btn .nav-glyph {
   color: inherit;
-  opacity: 0.7;
 }
 
 .mobile-nav-sheet .nav-glyph {
@@ -3576,6 +3575,8 @@ body {
 }
 
 .truth-table-wrap {
+  /* Contain the cells' absolutely positioned screen-reader text in the scroller. */
+  position: relative;
   overflow-x: auto;
   border: 1px solid var(--ink-line);
   border-radius: var(--radius);
@@ -3686,4 +3687,10 @@ body {
   margin: 0;
   font-size: var(--text-small);
   color: var(--dust);
+}
+
+/* KaTeX's screen-reader MathML is absolutely positioned. Anchor it to its own
+   formula so scroll containers clip it instead of it widening the page. */
+.katex {
+  position: relative;
 }

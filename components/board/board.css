@@ -18,6 +18,7 @@
 .stick {
   position: relative;
   overflow: hidden;
+  container-type: inline-size;
 }
 
 .run[data-mode="pan"] .stick {
@@ -56,6 +57,13 @@
   position: absolute;
 }
 
+/* Below the wide tier the text column fills the panel; ghosts would sit on it. */
+@media (max-width: 1099px) {
+  .ghosts {
+    display: none;
+  }
+}
+
 .track {
   position: relative;
   z-index: 1;
@@ -74,6 +82,9 @@
   height: 100%;
   min-width: 0;
   padding: clamp(1.5rem, 4svh, 3rem) var(--gutter) calc(var(--tray-h) + clamp(1.5rem, 4svh, 3rem));
+  /* Line the text column up with .container / the header on wide screens.
+     cqw = the board's width; a percentage would resolve against the whole track. */
+  padding-inline: max(var(--gutter), (100cqw - var(--max)) / 2);
 }
 
 .panel + .panel::before {
@@ -457,6 +468,7 @@
 }
 
 .run[data-mode="swipe"] .panel {
+  padding-inline: var(--gutter) 1rem;
   width: 88%;
   height: auto;
   min-height: min(74svh, 40rem);

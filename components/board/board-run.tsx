@@ -34,16 +34,22 @@ function shortRange(startsAt: string, endsAt: string): string {
   return startPeriod === endPeriod ? `${startTime}–${endTime} ${endPeriod}` : `${start}–${end}`;
 }
 
-const GHOSTS: Array<{ tex: string; left: string; top: string }> = [
-  { tex: tex`e^{i\pi} + 1 = 0`, left: "6%", top: "24%" },
-  { tex: tex`\sum 1/n^2 = \pi^2/6`, left: "58%", top: "70%" },
-  { tex: tex`V - E + F = 2`, left: "118%", top: "20%" },
-  { tex: tex`a^p \equiv a \pmod p`, left: "172%", top: "66%" },
-  { tex: tex`\varphi = \tfrac{1+\sqrt5}{2}`, left: "240%", top: "28%" },
-  { tex: tex`|\mathbb{N}| < |\mathbb{R}|`, left: "310%", top: "72%" },
-  { tex: tex`\oint_{\partial\Omega} \omega = \int_\Omega d\omega`, left: "380%", top: "22%" },
-  { tex: tex`\mathbb{E}[X+Y] = \mathbb{E}[X] + \mathbb{E}[Y]`, left: "450%", top: "66%" },
-  { tex: tex`\sqrt2 \notin \mathbb{Q}`, left: "530%", top: "30%" },
+/**
+ * Ghost formulas drift at 35% of the panel speed, so a ghost at `left` sits at
+ * (left − 35·i)% of the screen while panel i is in view. Each is placed in its
+ * panel's empty right side (≈ 68–88%), above or below the text band.
+ */
+const GHOST_DRIFT = 35;
+const GHOSTS: Array<{ tex: string; panel: number; x: number; top: string }> = [
+  { tex: tex`e^{i\pi} + 1 = 0`, panel: 0, x: 72, top: "12%" },
+  { tex: tex`\sum 1/n^2 = \pi^2/6`, panel: 0, x: 76, top: "78%" },
+  { tex: tex`V - E + F = 2`, panel: 1, x: 74, top: "80%" },
+  { tex: tex`a^p \equiv a \pmod p`, panel: 2, x: 70, top: "10%" },
+  { tex: tex`\varphi = \tfrac{1+\sqrt5}{2}`, panel: 3, x: 78, top: "78%" },
+  { tex: tex`|\mathbb{N}| < |\mathbb{R}|`, panel: 4, x: 80, top: "12%" },
+  { tex: tex`\oint_{\partial\Omega} \omega = \int_\Omega d\omega`, panel: 5, x: 70, top: "78%" },
+  { tex: tex`\mathbb{E}[X+Y] = \mathbb{E}[X] + \mathbb{E}[Y]`, panel: 6, x: 60, top: "80%" },
+  { tex: tex`\sqrt2 \notin \mathbb{Q}`, panel: 6, x: 80, top: "12%" },
 ];
 
 type Panel = { id: string; title: string; kind: string; node: (label: string) => ReactNode };
@@ -319,7 +325,7 @@ export function BoardRun({ now }: { now: number }) {
         ),
       }}
       ghosts={GHOSTS.map((ghost) => (
-        <span key={ghost.tex} style={{ left: ghost.left, top: ghost.top }}>
+        <span key={ghost.tex} style={{ left: `${ghost.panel * GHOST_DRIFT + ghost.x}%`, top: ghost.top }}>
           <Tex>{ghost.tex}</Tex>
         </span>
       ))}
