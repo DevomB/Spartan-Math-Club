@@ -1,32 +1,42 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type FocusEvent, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type FocusEvent,
+  type ReactNode,
+  type TouchEvent,
+} from "react";
 
 /**
  * The sideways blackboard (brand v2.1 §5), as progressive enhancement:
- * - pan   (≥ 860px wide and ≥ 640px tall, motion OK): vertical scroll pans the board
- * - swipe (< 860px): native horizontal scroll-snap, the next panel peeks in
- * - stack (reduced motion, short desktop screens, no JS, server render): vertical sections
- * Pan also falls back to stack if any panel's content would be clipped (zoom, large text).
- * Panels stay in DOM order with real headings, so reading order never changes.
+ * - pan   (motion OK, board at least 480px tall): every panel is a full-viewport slide;
+ *         vertical scroll pans the board, and a horizontal swipe steps one panel on touch
+ * - stack (reduced motion, landscape phones, no JS, server render): vertical sections
+ * Panel type and spacing are sized in viewport units (see --u in board.css) so slides fit
+ * phones and short laptops alike. Pan still falls back to stack if content would be clipped
+ * (zoom, very large text). Panels stay in DOM order with real headings.
  */
 
-type Mode = "pan" | "swipe" | "stack";
+type Mode = "pan" | "stack";
 export type PanelMeta = { id: string; title: string };
 
-const WIDE = "(min-width: 860px)";
-const TALL = "(min-height: 640px)";
+const TALL = "(min-height: 480px)";
 const REDUCE = "(prefers-reduced-motion: reduce)";
+/** A touch gesture this far sideways, and mostly sideways, steps one panel. */
+const SWIPE_PX = 48;
 
 function subscribe(callback: () => void) {
-  const queries = [WIDE, TALL, REDUCE].map((query) => window.matchMedia(query));
+  const queries = [TALL, REDUCE].map((query) => window.matchMedia(query));
   queries.forEach((query) => query.addEventListener("change", callback));
   return () => queries.forEach((query) => query.removeEventListener("change", callback));
 }
 
 function readMode(): Mode {
   if (window.matchMedia(REDUCE).matches) return "stack";
-  if (!window.matchMedia(WIDE).matches) return "swipe";
   return window.matchMedia(TALL).matches ? "pan" : "stack";
 }
 
@@ -169,11 +179,6 @@ export function BoardTrack({
       place.current.index = Math.round(x);
       place.current.x = x;
       setCurrent(Math.round(x));
-    } else if (mode === "swipe") {
-      const first = panelElements()[0];
-      const index = Math.round(track.scrollLeft / (first?.offsetWidth || 1));
-      place.current.index = index;
-      setCurrent(index);
     }
   }, [geometry, mode, n, panelElements]);
 
@@ -186,13 +191,6 @@ export function BoardTrack({
         const geo = geometry();
         if (!geo) return;
         window.scrollTo({ top: geo.runTop - geo.stickTop + (geo.travel * target) / Math.max(n - 1, 1), behavior });
-      } else if (mode === "swipe") {
-        const track = trackRef.current;
-        const panel = panelElements()[target];
-        if (track && panel) {
-          track.scrollTo({ left: panel.offsetLeft - track.offsetLeft, behavior });
-          runRef.current?.scrollIntoView({ block: "start", behavior });
-        }
       } else {
         panelElements()[target]?.scrollIntoView({ block: "start", behavior: "instant" });
       }
@@ -261,13 +259,11 @@ export function BoardTrack({
     schedule();
     window.addEventListener("scroll", schedule, { passive: true });
     window.addEventListener("resize", onResize);
-    track?.addEventListener("scroll", schedule, { passive: true });
     return () => {
       cancelAnimationFrame(frame);
       cancelAnimationFrame(sizeFrame);
       window.removeEventListener("scroll", schedule);
       window.removeEventListener("resize", onResize);
-      track?.removeEventListener("scroll", schedule);
     };
   }, [mode, update, geometry, n]);
 
@@ -309,6 +305,27 @@ export function BoardTrack({
     if (index > -1 && index !== current) go(index, true);
   };
 
+  // Touch: vertical drags scroll the page (and pan the board) natively; a clearly
+  // horizontal flick steps one panel, like swiping a slide.
+  const touchStart = useRef<{ x: number; y: number; t: number } | null>(null);
+  const onTouchStart = (event: TouchEvent) => {
+    if (mode !== "pan" || event.touches.length !== 1) return;
+    const touch = event.touches[0];
+    touchStart.current = { x: touch.clientX, y: touch.clientY, t: event.timeStamp };
+  };
+  const onTouchEnd = (event: TouchEvent) => {
+    const start = touchStart.current;
+    touchStart.current = null;
+    if (!start || mode !== "pan") return;
+    // Let horizontally scrollable formulas keep their own gesture.
+    if ((event.target as Element).closest?.(".formal, .katex-display")) return;
+    const touch = event.changedTouches[0];
+    const dx = touch.clientX - start.x;
+    const dy = touch.clientY - start.y;
+    if (Math.abs(dx) < SWIPE_PX || Math.abs(dx) < Math.abs(dy) * 1.4 || event.timeStamp - start.t > 800) return;
+    go(current + (dx < 0 ? 1 : -1));
+  };
+
   return (
     <section
       ref={runRef}
@@ -318,7 +335,7 @@ export function BoardTrack({
       aria-label="The board"
       onFocus={onFocus}
     >
-      <div ref={stickRef} className="stick">
+      <div ref={stickRef} className="stick" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
         <div ref={ghostsRef} className="ghosts" aria-hidden="true">
           {ghosts}
         </div>
@@ -348,7 +365,8 @@ export function BoardTrack({
           </span>
           <span className="counter" aria-hidden="true">
             {current + 1} / {n}
-            <span className="counter-hint"> · {mode === "pan" ? hints?.pan ?? "scroll" : hints?.swipe ?? "swipe"}</span>
+            <span className="counter-hint counter-hint--fine"> · {hints?.pan ?? "scroll"}</span>
+            <span className="counter-hint counter-hint--coarse"> · {hints?.swipe ?? "swipe"}</span>
           </span>
           <span className="visually-hidden" aria-live="polite">
             {mode === "stack" ? "" : `Panel ${announced + 1} of ${n}: ${panels[announced]?.title ?? ""}`}

@@ -1,11 +1,35 @@
 /* ==========================================================================
    The board run (brand v2.1 §5). Server renders data-mode="stack"; JS upgrades
-   to "pan" (≥ 860px) or "swipe" (< 860px). Reduced motion stays "stack".
+   to "pan", where every panel is a full-viewport slide. Reduced motion stays "stack".
+
+   Sizing is viewport-relative. One board unit, --u, is the smaller of
+   1/42 of the viewport width and 1/60 of the board's height, so a slide scales
+   down on narrow phones and on short laptops alike and its content keeps fitting:
+
+     390 × 844 phone   → u ≈ 9.3px     320 × 568 phone  → u ≈ 7.6px
+     1440 × 900 laptop → u ≈ 14px      1280 × 600       → u ≈ 8.9px
+
+   Every font size, gap, and padding inside the board is a multiple of --u,
+   clamped by a rem floor (browser zoom and text size still apply) and a ceiling.
    ========================================================================== */
 
 .run {
   --n: 7;
   --board-h: calc(100svh - var(--header-h) - var(--safe-top));
+  --u: min(calc(100vw / 42), calc(var(--board-h) / 60));
+
+  --b-display: clamp(2rem, calc(var(--u) * 5.6), 7rem);
+  --b-h2: clamp(1.65rem, calc(var(--u) * 4.4), 5rem);
+  --b-hand: clamp(1.15rem, calc(var(--u) * 2.6), 2.1rem);
+  --b-formal: clamp(0.95rem, calc(var(--u) * 2.1), 1.75rem);
+  --b-body: clamp(0.95rem, calc(var(--u) * 1.75), 1.25rem);
+  --b-small: clamp(0.8rem, calc(var(--u) * 1.5), 1.05rem);
+  --b-label: clamp(0.62rem, calc(var(--u) * 1.2), 0.78rem);
+  --b-proof: clamp(1.1rem, calc(var(--u) * 2.45), 2.05rem);
+  --b-gap: clamp(0.5rem, calc(var(--u) * 1.9), 1.6rem);
+  --b-pad-y: clamp(0.9rem, calc(var(--u) * 3), 3rem);
+  --tray-h: clamp(3rem, calc(var(--u) * 6), 4rem);
+
   position: relative;
   isolation: isolate;
   border-bottom: 1px solid var(--ink-line);
@@ -25,6 +49,8 @@
   position: sticky;
   top: calc(var(--header-h) + var(--safe-top));
   height: var(--board-h);
+  /* Vertical drags scroll the page; horizontal flicks are handled as panel steps. */
+  touch-action: pan-y;
 }
 
 .run::before {
@@ -81,7 +107,7 @@
   width: calc(100% / var(--n));
   height: 100%;
   min-width: 0;
-  padding: clamp(1.5rem, 4svh, 3rem) var(--gutter) calc(var(--tray-h) + clamp(1.5rem, 4svh, 3rem));
+  padding: var(--b-pad-y) var(--gutter) calc(var(--tray-h) + var(--b-pad-y));
   /* Line the text column up with .container / the header on wide screens.
      cqw = the board's width; a percentage would resolve against the whole track. */
   padding-inline: max(var(--gutter), (100cqw - var(--max)) / 2);
@@ -99,14 +125,15 @@
 
 .pin {
   display: grid;
-  gap: clamp(0.9rem, 2.2svh, 1.6rem);
+  gap: var(--b-gap);
   max-width: 64rem;
   min-width: 0;
+  font-size: var(--b-body);
 }
 
 .eyebrow-board {
   font-family: var(--mono);
-  font-size: var(--text-label);
+  font-size: var(--b-label);
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--dust);
@@ -121,13 +148,13 @@
 }
 
 .board-h {
-  font-size: var(--text-board);
+  font-size: var(--b-display);
   line-height: 1.02;
   letter-spacing: 0.005em;
 }
 
 .board-h2 {
-  font-size: var(--text-board-2);
+  font-size: var(--b-h2);
   line-height: 1.05;
 }
 
@@ -157,7 +184,7 @@
 
 .formal {
   display: block;
-  font-size: var(--text-formal);
+  font-size: var(--b-formal);
   color: var(--dust);
   overflow-x: auto;
   overflow-y: hidden;
@@ -166,7 +193,7 @@
 
 .board-lede {
   max-width: 40rem;
-  font-size: var(--text-lede);
+  font-size: var(--b-body);
   color: var(--dust);
 }
 
@@ -174,13 +201,13 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.75rem 1.5rem;
+  gap: calc(var(--b-gap) * 0.4) calc(var(--b-gap) * 1.2);
 }
 
 .label {
   font-family: var(--hand);
   font-weight: 700;
-  font-size: var(--text-hand);
+  font-size: var(--b-hand);
   line-height: 1;
 }
 
@@ -222,13 +249,14 @@
 .facts {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem 2rem;
+  gap: calc(var(--b-gap) * 0.25) calc(var(--b-gap) * 1.4);
+  font-size: var(--b-small);
 }
 
 .facts b {
-  margin-right: 0.5rem;
+  margin-right: 0.5em;
   font-family: var(--mono);
-  font-size: 0.68rem;
+  font-size: var(--b-label);
   font-weight: 400;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -238,13 +266,13 @@
 .mondays {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.35rem;
+  gap: clamp(0.25rem, calc(var(--u) * 0.45), 0.4rem);
   font-family: var(--mono);
-  font-size: 0.72rem;
+  font-size: var(--b-label);
 }
 
 .mondays li {
-  padding: 0.3rem 0.45rem;
+  padding: 0.35em 0.55em;
   border: 1px solid var(--ink-line);
   border-radius: 2px;
   color: var(--dust);
@@ -269,18 +297,19 @@
 .board-pillars {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
-  gap: 0.6rem 2rem;
+  gap: calc(var(--b-gap) * 0.4) calc(var(--b-gap) * 1.2);
+  font-size: var(--b-small);
 }
 
 .board-pillars li {
   display: grid;
-  grid-template-columns: 2rem minmax(0, 1fr);
+  grid-template-columns: 1.6em minmax(0, 1fr);
   align-items: baseline;
-  gap: 0.4rem;
+  gap: 0.4em;
 }
 
 .board-pillars .sym {
-  font-size: 1.3rem;
+  font-size: 1.25em;
   color: var(--yellow);
 }
 
@@ -294,8 +323,8 @@
   max-width: 52rem;
   font-family: var(--hand);
   font-weight: 500;
-  font-size: clamp(1.5rem, 1.1rem + 1vw, 2.05rem);
-  line-height: 1.35;
+  font-size: var(--b-proof);
+  line-height: 1.3;
 }
 
 .board-proof .tex .katex {
@@ -311,14 +340,14 @@
   padding: 0.2rem 0.5rem;
   border: 1px dashed var(--ink-line-strong);
   font-family: var(--mono);
-  font-size: 0.66rem;
+  font-size: var(--b-label);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--dust);
 }
 
 .board-crest {
-  width: min(9rem, 30vw);
+  width: clamp(4.5rem, calc(var(--u) * 13), 9rem);
   height: auto;
   color: var(--chalk);
 }
@@ -431,17 +460,52 @@
   white-space: nowrap;
 }
 
-@media (max-width: 559px) {
-  .sticks,
-  .counter-hint {
+/* Touch screens get the swipe hint, mouse and trackpad the scroll hint. */
+.counter-hint--coarse {
+  display: none;
+}
+
+@media (pointer: coarse) {
+  .counter-hint--fine {
     display: none;
   }
 
-  .tray {
-    justify-content: center;
+  .counter-hint--coarse {
+    display: inline;
+  }
+}
+
+/* ---------- Phones: same full-viewport slides, tightened content ---------- */
+
+@media (max-width: 559px) {
+  .sticks {
+    display: none;
   }
 
-  /* Still announced as a live region; the ticks show position visually. */
+  .ticks button {
+    width: clamp(32px, calc((100vw - 2 * var(--gutter) - 5.5rem) / var(--n)), 44px);
+  }
+
+  .ticks button span {
+    width: clamp(0.7rem, calc(var(--u) * 1.6), 1.1rem);
+  }
+
+  .ticks button[aria-current="true"] span {
+    width: clamp(1.2rem, calc(var(--u) * 2.8), 2rem);
+  }
+
+  .board-pillars {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Past Mondays are history; on a phone slide the upcoming ones matter. */
+  .mondays .past {
+    display: none;
+  }
+}
+
+/* Very narrow phones (320px class): the tray keeps only the ticks. */
+@media (max-width: 359px) {
   .counter {
     position: absolute;
     width: 1px;
@@ -449,40 +513,10 @@
     overflow: hidden;
     clip: rect(0 0 0 0);
   }
-}
 
-/* ---------- Swipe (phones): native horizontal scroll, the next panel peeks ---------- */
-
-.run[data-mode="swipe"] .track {
-  width: 100%;
-  height: auto;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  overscroll-behavior-x: contain;
-  scrollbar-width: none;
-  transform: none !important;
-}
-
-.run[data-mode="swipe"] .track::-webkit-scrollbar {
-  display: none;
-}
-
-.run[data-mode="swipe"] .panel {
-  padding-inline: var(--gutter) 1rem;
-  width: 88%;
-  height: auto;
-  min-height: min(74svh, 40rem);
-  align-content: start;
-  padding: 2.5rem 1rem 2.5rem var(--gutter);
-  scroll-snap-align: start;
-}
-
-.run[data-mode="swipe"] .tray {
-  position: relative;
-}
-
-.run[data-mode="swipe"] .ghosts {
-  display: none;
+  .tray {
+    justify-content: center;
+  }
 }
 
 /* ---------- Stack (reduced motion, no JS): plain vertical sections ---------- */
