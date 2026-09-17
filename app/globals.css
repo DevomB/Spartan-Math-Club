@@ -3741,10 +3741,3 @@ body {
     background: Highlight;
   }
 }
-
-/* The board adjusts scroll itself when its height changes (see board-track.tsx), from
-   its own size delta, so it behaves the same in browsers without scroll anchoring
-   (Safari). Native anchoring would apply the same correction a second time. */
-html {
-  overflow-anchor: none;
-}

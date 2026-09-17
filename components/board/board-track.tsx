@@ -32,6 +32,11 @@ function readMode(): Mode {
 
 const serverMode = (): Mode => "stack";
 
+/** Native scroll anchoring (Chromium, Firefox) keeps content in place when layout above it changes. */
+function supportsScrollAnchoring(): boolean {
+  return typeof CSS !== "undefined" && CSS.supports("overflow-anchor", "auto");
+}
+
 export function BoardTrack({
   panels,
   ghosts,
@@ -206,8 +211,9 @@ export function BoardTrack({
     let frame = 0;
     if (inBoard) {
       frame = requestAnimationFrame(() => go(index, true));
-    } else if (belowBoard) {
-      // The board changed height above the reader: shift by exactly that, so content below stays put.
+    } else if (belowBoard && !supportsScrollAnchoring()) {
+      // The board changed height above the reader. Browsers with scroll anchoring already
+      // keep the content below in place; elsewhere (Safari) shift by exactly the delta.
       frame = requestAnimationFrame(() => {
         const heightAfter = runRef.current?.offsetHeight ?? heightBefore;
         const delta = heightAfter - heightBefore;
