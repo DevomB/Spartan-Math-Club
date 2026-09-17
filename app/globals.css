@@ -57,7 +57,7 @@
   --text-board: clamp(2.5rem, 1rem + 6.667vw, 7rem);
   --text-board-2: clamp(2.1rem, 1rem + 4.2vw, 5rem);
   --text-hero: var(--text-board);
-  --text-page: clamp(2rem, calc(var(--pu) * 5.2), 5rem);
+  --text-page: clamp(1.9rem, min(calc(var(--pu) * 5.2), 11vw), 5rem);
   --text-h2: clamp(1.7rem, calc(var(--pu) * 3.5), 3.4rem);
   --text-h3: clamp(1.25rem, calc(var(--pu) * 1.5), 1.7rem);
   --text-hand: clamp(1.4rem, 1.1rem + 1vw, 2rem);
@@ -2177,7 +2177,12 @@ p + .p {
 }
 
 .consult-aside .katex-display {
-  margin: 0 0 0.75rem;
+  margin: 0 0 0.6rem;
+}
+
+/* The boxed formula is the tallest thing in this hero on a phone. */
+.consult-aside .tex--display {
+  font-size: clamp(0.72em, calc(var(--pu) * 0.075), 1em);
 }
 
 .consult-aside p {
