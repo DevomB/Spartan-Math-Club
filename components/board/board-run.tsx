@@ -68,7 +68,7 @@ export function BoardRun({ now }: { now: number }) {
     kind: "",
     node: () => (
       <>
-        <p className="eyebrow-board">Spartan Math Club · student org at San José State</p>
+        <p className="eyebrow-board">Spartan Math Club · student org at SJSU</p>
         <h1 className="board-h chalky">
           For all problems, <span className="y">there exists a Monday.</span>
         </h1>

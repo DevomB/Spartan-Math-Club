@@ -7,6 +7,7 @@ export function Tex({
   display = false,
   className,
   hidden = false,
+  fit = false,
 }: {
   children: string;
   display?: boolean;
@@ -16,15 +17,20 @@ export function Tex({
    * (formal lines under headlines, status and nav glyphs).
    */
   hidden?: boolean;
+  /**
+   * Meaningful display math that is sized to fit its box, so it never needs to
+   * scroll: no scrollbar, and no keyboard stop for a region that cannot move.
+   */
+  fit?: boolean;
 }) {
   const Tag = display ? "div" : "span";
   // Display math scrolls sideways when it is wider than its column, and a scrollable
   // region must be reachable by keyboard (WCAG 2.1.1). Decorative math is never
   // focusable — it is aria-hidden, and its CSS clips instead of scrolling.
-  const scrollable = display && !hidden;
+  const scrollable = display && !hidden && !fit;
   return (
     <Tag
-      className={cn(display ? "tex tex--display" : "tex", className)}
+      className={cn(display ? "tex tex--display" : "tex", fit && "tex--fit", className)}
       aria-hidden={hidden || undefined}
       {...(scrollable ? { tabIndex: 0, role: "math" as const } : {})}
       dangerouslySetInnerHTML={{ __html: renderTex(children, display) }}

@@ -30,7 +30,9 @@ export function ChaosFigure() {
           </p>
         </SectionHead>
         <LorenzField>
-          <Tex display>{lorenzSystem}</Tex>
+          <Tex display fit>
+            {lorenzSystem}
+          </Tex>
           <Tex className="lorenz-params">{String.raw`\sigma = 10,\ \beta = 8/3`}</Tex>
         </LorenzField>
       </div>
