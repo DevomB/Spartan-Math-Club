@@ -1,5 +1,5 @@
 import { Crest } from "@/components/brand/crest";
-import { BOARD_MODE_SCRIPT, BoardTrack, type PanelMeta } from "@/components/board/board-track";
+import { BoardTrack, type PanelMeta } from "@/components/board/board-track";
 import { MathText, Tex } from "@/components/math/tex";
 import { proofOfTheWeek } from "@/content/board";
 import { homeCopy } from "@/content/club";
@@ -312,10 +312,9 @@ export function BoardRun({ now }: { now: number }) {
   const meta: PanelMeta[] = panels.map((panel) => ({ id: panel.id, title: panel.title }));
 
   return (
-    <>
-      <BoardTrack
-        panels={meta}
-        hints={{
+    <BoardTrack
+      panels={meta}
+      hints={{
         pan: (
           <>
             scroll <Tex>{tex`\downarrow\ \implies\ \rightarrow`}</Tex>
@@ -326,14 +325,14 @@ export function BoardRun({ now }: { now: number }) {
             swipe <Tex>{tex`\rightarrow`}</Tex>
           </>
         ),
-        }}
-        ghosts={GHOSTS.map((ghost) => (
+      }}
+      ghosts={GHOSTS.map((ghost) => (
         <span key={ghost.tex} style={{ left: `${ghost.panel * GHOST_DRIFT + ghost.x}%`, top: ghost.top }}>
           <Tex>{ghost.tex}</Tex>
         </span>
-        ))}
-      >
-        {panels.map((panel, index) => {
+      ))}
+    >
+      {panels.map((panel, index) => {
         if (panel.kind) counter += 1;
         const label = panel.kind ? `${panel.kind} ${counter}` : "";
         return (
@@ -342,11 +341,8 @@ export function BoardRun({ now }: { now: number }) {
               {panel.node(label)}
             </div>
           </article>
-          );
-        })}
-      </BoardTrack>
-      {/* Sets the board's layout before the first paint; see BOARD_MODE_SCRIPT. */}
-      <script dangerouslySetInnerHTML={{ __html: BOARD_MODE_SCRIPT }} />
-    </>
+        );
+      })}
+    </BoardTrack>
   );
 }

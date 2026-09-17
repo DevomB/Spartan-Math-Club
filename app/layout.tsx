@@ -1,3 +1,4 @@
+import { BOARD_MODE_SCRIPT } from "@/components/board/board-track";
 import { ChalkDefs } from "@/components/brand/chalk-defs";
 import { ConsoleHello } from "@/components/layout/console-hello";
 import { FloatingPrompt } from "@/components/layout/floating-prompt";
@@ -34,6 +35,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={fontVariables}>
       <body>
+        {/* First thing in the body: decides the board's layout before anything paints,
+            so the panels never move once the page is interactive. See BOARD_MODE_SCRIPT. */}
+        <script dangerouslySetInnerHTML={{ __html: BOARD_MODE_SCRIPT }} />
         <ChalkDefs />
         <StructuredData upcoming={structuredEvents(events, weeklyMeetings, now)} />
         <SkipLink />

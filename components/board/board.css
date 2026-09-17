@@ -1,6 +1,9 @@
 /* ==========================================================================
-   The board run (brand v2.1 §5). Server renders data-mode="stack"; JS upgrades
-   to "pan", where every panel is a full-viewport slide. Reduced motion stays "stack".
+   The board run (brand v2.1 §5). The pan layout, where every panel is a full-viewport
+   slide, needs two things: data-board="pan" on <html>, set by a blocking inline script
+   before the first paint, and data-mode="pan" on the run, which React keeps in sync and
+   the clip guard can withdraw. Without JavaScript the flag never appears, so the board
+   stays a plain stack of sections. Reduced motion and short screens stack too.
 
    Sizing is viewport-relative. One board unit, --u, is the smaller of
    1/42 of the viewport width and 1/60 of the board's height, so a slide scales
@@ -35,7 +38,7 @@
   border-bottom: 1px solid var(--ink-line);
 }
 
-.run[data-mode="pan"] {
+html[data-board="pan"] .run[data-mode="pan"] {
   height: calc(var(--n) * var(--board-h));
 }
 
@@ -45,7 +48,7 @@
   container-type: inline-size;
 }
 
-.run[data-mode="pan"] .stick {
+html[data-board="pan"] .run[data-mode="pan"] .stick {
   position: sticky;
   top: calc(var(--header-h) + var(--safe-top));
   height: var(--board-h);
@@ -529,23 +532,32 @@
 
 /* ---------- Stack (reduced motion, no JS): plain vertical sections ---------- */
 
+.run .track,
 .run[data-mode="stack"] .track {
   flex-direction: column;
   width: 100%;
   height: auto;
+}
+
+/* Drop any inline transform JS left behind when the mode changes to stack. */
+.run[data-mode="stack"] .track,
+.run[data-mode="stack"] .ghosts {
   transform: none !important;
 }
 
+.run .panel,
 .run[data-mode="stack"] .panel {
   width: 100%;
   height: auto;
   padding-block: clamp(3rem, 2rem + 4vw, 5rem);
 }
 
+.run .panel--top,
 .run[data-mode="stack"] .panel--top {
   min-height: min(80svh, 48rem);
 }
 
+.run .panel + .panel::before,
 .run[data-mode="stack"] .panel + .panel::before {
   top: 0;
   right: var(--gutter);
@@ -556,7 +568,47 @@
   background: var(--ink-line);
 }
 
+.run .tray,
+.run .ghosts,
 .run[data-mode="stack"] .tray,
 .run[data-mode="stack"] .ghosts {
   display: none;
+}
+
+/* ---------- Pan: the flag is set, so lay the panels out as a filmstrip ---------- */
+
+html[data-board="pan"] .run[data-mode="pan"] .track {
+  flex-direction: row;
+  width: calc(var(--n) * 100%);
+  height: 100%;
+}
+
+html[data-board="pan"] .run[data-mode="pan"] .panel {
+  width: calc(100% / var(--n));
+  height: 100%;
+  padding-block: var(--b-pad-y) calc(var(--tray-h) + var(--b-pad-y));
+}
+
+html[data-board="pan"] .run[data-mode="pan"] .panel--top {
+  min-height: 0;
+}
+
+html[data-board="pan"] .run[data-mode="pan"] .panel + .panel::before {
+  top: 18%;
+  right: auto;
+  bottom: 22%;
+  left: 0;
+  width: 1px;
+  height: auto;
+  background: linear-gradient(transparent, var(--ink-line), transparent);
+}
+
+html[data-board="pan"] .run[data-mode="pan"] .tray {
+  display: flex;
+}
+
+@media (min-width: 1100px) {
+  html[data-board="pan"] .run[data-mode="pan"] .ghosts {
+    display: block;
+  }
 }

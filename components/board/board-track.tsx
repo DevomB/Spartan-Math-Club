@@ -28,16 +28,23 @@ function readMode(): Mode {
 }
 
 /**
- * Runs from a blocking inline script (BOARD_MODE_SCRIPT) the moment the board markup is
- * parsed, so the very first paint already has the right layout. Without it the server's
- * "stack" markup painted first and hydration moved every panel: CLS ≈ 0.45 on the home page.
- * With no JavaScript the script never runs and the stack markup stands.
+ * Runs as the first thing in the body, before any board markup is parsed, so the first
+ * paint already has the right layout. Without it the server markup painted as one
+ * layout and hydration moved every panel: CLS ≈ 0.45 on the home page.
+ *
+ * It sets data-board on <html>, and board.css grants the pan layout only when that
+ * says "pan". With no JavaScript the attribute never appears and the board stays a
+ * plain stack of sections, whatever data-mode the server rendered.
  */
-export const BOARD_MODE_SCRIPT = `(function(){var s=document.currentScript,r=s&&s.previousElementSibling;if(!r||!r.classList.contains("run"))return;var m=matchMedia("${REDUCE}").matches||!matchMedia("${TALL}").matches?"stack":"pan";r.setAttribute("data-mode",m)})()`;
+export const BOARD_MODE_SCRIPT = `document.documentElement.dataset.board=matchMedia("${REDUCE}").matches||!matchMedia("${TALL}").matches?"stack":"pan"`;
 
-/** The mode the inline script already applied, so hydration agrees with what is on screen. */
+/**
+ * Hydration has to agree with what the inline script already put on screen, so the
+ * client reads the same media queries. The server assumes pan; without JavaScript the
+ * missing data-board keeps the stack layout regardless.
+ */
 function initialMode(): Mode {
-  if (typeof window === "undefined") return "stack";
+  if (typeof window === "undefined") return "pan";
   return readMode();
 }
 
