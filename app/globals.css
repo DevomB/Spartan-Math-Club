@@ -2180,9 +2180,10 @@ p + .p {
   margin: 0 0 0.6rem;
 }
 
-/* The boxed formula is the tallest thing in this hero on a phone. */
+/* The boxed formula is the tallest thing in this hero on a phone, so it scales
+   with width — but never below a readable size. */
 .consult-aside .tex--display {
-  font-size: clamp(0.72em, calc(var(--pu) * 0.075), 1em);
+  font-size: clamp(0.85rem, 3.4vw, 1.05rem);
 }
 
 .consult-aside p {
