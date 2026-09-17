@@ -34,7 +34,7 @@ function readMode(): Mode {
  *
  * It sets data-board on <html>, and board.css grants the pan layout only when that
  * says "pan". With no JavaScript the attribute never appears and the board stays a
- * plain stack of sections, whatever data-mode the server rendered.
+ * plain stack of sections.
  */
 export const BOARD_MODE_SCRIPT = `document.documentElement.dataset.board=matchMedia("${REDUCE}").matches||!matchMedia("${TALL}").matches?"stack":"pan"`;
 
@@ -140,6 +140,20 @@ export function BoardTrack({
       observer.disconnect();
     };
   }, [mediaMode, clipped]);
+
+  /**
+   * data-mode is set on the DOM node instead of rendered as a prop. The server cannot
+   * know the viewport, so rendering it would guarantee a hydration mismatch, and React's
+   * recovery from that re-creates the markup and drops the pre-paint data-board flag with
+   * it — which would strip the pan layout mid-load. The CSS only needs this attribute to
+   * take pan away, so the absence of it is the common case.
+   */
+  useEffect(() => {
+    const run = runRef.current;
+    if (!run) return;
+    if (mode === "stack") run.setAttribute("data-mode", "stack");
+    else run.removeAttribute("data-mode");
+  }, [mode]);
 
   // Screen readers hear the panel once scrolling settles, not on every step.
   useEffect(() => {
@@ -345,9 +359,7 @@ export function BoardTrack({
     <section
       ref={runRef}
       className="run"
-      // The inline script sets this before paint; the server always says "stack".
-      suppressHydrationWarning
-      data-mode={mode}
+      // data-mode is written imperatively, never rendered: see the effect above.
       style={{ ["--n" as string]: n }}
       aria-label="The board"
       onFocus={onFocus}

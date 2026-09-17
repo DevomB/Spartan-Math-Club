@@ -1,9 +1,10 @@
 /* ==========================================================================
-   The board run (brand v2.1 §5). The pan layout, where every panel is a full-viewport
-   slide, needs two things: data-board="pan" on <html>, set by a blocking inline script
-   before the first paint, and data-mode="pan" on the run, which React keeps in sync and
-   the clip guard can withdraw. Without JavaScript the flag never appears, so the board
-   stays a plain stack of sections. Reduced motion and short screens stack too.
+   The board run (brand v2.1 §5). Stack is what the markup is: plain vertical sections,
+   which is what a visitor without JavaScript keeps. The pan layout, where every panel is
+   a full-viewport slide, applies when a blocking inline script has set data-board="pan"
+   on <html> before the first paint AND nothing has since set data-mode="stack" on the run
+   (the clip guard does that when content would not fit). Neither attribute is rendered by
+   React, so hydration has nothing to disagree with.
 
    Sizing is viewport-relative. One board unit, --u, is the smaller of
    1/42 of the viewport width and 1/60 of the board's height, so a slide scales
@@ -38,7 +39,7 @@
   border-bottom: 1px solid var(--ink-line);
 }
 
-html[data-board="pan"] .run[data-mode="pan"] {
+html[data-board="pan"] .run:not([data-mode="stack"]) {
   height: calc(var(--n) * var(--board-h));
 }
 
@@ -48,7 +49,7 @@ html[data-board="pan"] .run[data-mode="pan"] {
   container-type: inline-size;
 }
 
-html[data-board="pan"] .run[data-mode="pan"] .stick {
+html[data-board="pan"] .run:not([data-mode="stack"]) .stick {
   position: sticky;
   top: calc(var(--header-h) + var(--safe-top));
   height: var(--board-h);
@@ -577,23 +578,23 @@ html[data-board="pan"] .run[data-mode="pan"] .stick {
 
 /* ---------- Pan: the flag is set, so lay the panels out as a filmstrip ---------- */
 
-html[data-board="pan"] .run[data-mode="pan"] .track {
+html[data-board="pan"] .run:not([data-mode="stack"]) .track {
   flex-direction: row;
   width: calc(var(--n) * 100%);
   height: 100%;
 }
 
-html[data-board="pan"] .run[data-mode="pan"] .panel {
+html[data-board="pan"] .run:not([data-mode="stack"]) .panel {
   width: calc(100% / var(--n));
   height: 100%;
   padding-block: var(--b-pad-y) calc(var(--tray-h) + var(--b-pad-y));
 }
 
-html[data-board="pan"] .run[data-mode="pan"] .panel--top {
+html[data-board="pan"] .run:not([data-mode="stack"]) .panel--top {
   min-height: 0;
 }
 
-html[data-board="pan"] .run[data-mode="pan"] .panel + .panel::before {
+html[data-board="pan"] .run:not([data-mode="stack"]) .panel + .panel::before {
   top: 18%;
   right: auto;
   bottom: 22%;
@@ -603,12 +604,12 @@ html[data-board="pan"] .run[data-mode="pan"] .panel + .panel::before {
   background: linear-gradient(transparent, var(--ink-line), transparent);
 }
 
-html[data-board="pan"] .run[data-mode="pan"] .tray {
+html[data-board="pan"] .run:not([data-mode="stack"]) .tray {
   display: flex;
 }
 
 @media (min-width: 1100px) {
-  html[data-board="pan"] .run[data-mode="pan"] .ghosts {
+  html[data-board="pan"] .run:not([data-mode="stack"]) .ghosts {
     display: block;
   }
 }
