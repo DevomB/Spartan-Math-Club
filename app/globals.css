@@ -750,7 +750,9 @@ p + .p {
   place-items: center;
   width: 2.75rem;
   height: 2.75rem;
-  margin-right: -0.5rem;
+  /* Optical alignment only: a rem value here would grow with the reader's text size
+     and push the button past the edge of the header. */
+  margin-right: -4px;
   cursor: pointer;
   list-style: none;
   border-radius: var(--radius);
@@ -2572,8 +2574,21 @@ p + .p {
 
 .footer-cols {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 2rem;
+  /* Columns flow instead of insisting on three, so long link labels still fit when
+     the reader enlarges text. */
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+  /* A rem gap doubles with the reader's text size and squeezes the columns. */
+  gap: clamp(1rem, 4vw, 2rem);
+}
+
+/* Headings and links break rather than widening their column. */
+.footer-cols .footer-heading,
+.footer-cols a {
+  overflow-wrap: anywhere;
+}
+
+.footer-cols > div {
+  min-width: 0;
 }
 
 .footer-heading {
@@ -3846,10 +3861,52 @@ body {
   }
 }
 
-/* Very little room per line: keep the crest, drop the wordmark text.
+/* The header must fit whatever the reader's text size is. Media queries in em only
+   see the browser's default font size, so the lockup is sized against the viewport
+   instead: it shrinks, then truncates, and the crest and menu button always fit.
    The header link keeps its accessible name ("Spartan Math Club, home"). */
-@media (max-width: 15em) {
+.wordmark {
+  min-width: 0;
+  flex: 0 1 auto;
+}
+
+.lockup {
+  min-width: 0;
+}
+
+.lockup-text {
+  min-width: 0;
+  font-size: min(1.35rem, 5.2vw);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lockup-crest {
+  width: min(2.1rem, 8vw);
+  height: min(2.1rem, 8vw);
+}
+
+@media (min-width: 54em) {
   .lockup-text {
-    display: none;
+    font-size: min(1.35rem, 2.6vw);
   }
+
+  .lockup-crest {
+    width: min(2.1rem, 4vw);
+    height: min(2.1rem, 4vw);
+  }
+}
+
+/* Grids whose implicit columns would size to their widest content: pin them to the
+   available width so long summaries and formulas can't widen the page. */
+.problem-reveals,
+.problem-statement,
+.reveal-body {
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
+}
+
+.reveal summary {
+  min-width: 0;
+  flex-wrap: wrap;
 }

@@ -60,7 +60,8 @@ export default function ConsultingPage() {
             {consultingCopy.services.map((service, index) => (
               <li className="service" key={service.title}>
                 <span className="service-index">1.{index + 1}</span>
-                <div className="service-formula">
+                {/* Scrolls sideways when the formula outgrows the card, so it needs keyboard access. */}
+                <div className="service-formula" tabIndex={0} role="math" aria-label={`${service.title} formula`}>
                   <Tex>{service.formula}</Tex>
                 </div>
                 <h3 className="service-title">{service.title}</h3>

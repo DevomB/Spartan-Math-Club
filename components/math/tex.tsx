@@ -18,10 +18,15 @@ export function Tex({
   hidden?: boolean;
 }) {
   const Tag = display ? "div" : "span";
+  // Display math scrolls sideways when it is wider than its column, and a scrollable
+  // region must be reachable by keyboard (WCAG 2.1.1). Decorative math is never
+  // focusable — it is aria-hidden, and its CSS clips instead of scrolling.
+  const scrollable = display && !hidden;
   return (
     <Tag
       className={cn(display ? "tex tex--display" : "tex", className)}
       aria-hidden={hidden || undefined}
+      {...(scrollable ? { tabIndex: 0, role: "math" as const } : {})}
       dangerouslySetInnerHTML={{ __html: renderTex(children, display) }}
     />
   );
