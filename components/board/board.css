@@ -304,8 +304,15 @@
 .board-pillars li {
   display: grid;
   grid-template-columns: 1.6em minmax(0, 1fr);
-  align-items: baseline;
+  align-items: center;
   gap: 0.4em;
+}
+
+/* WCAG 2.5.8: the linked pillar stays a 24px target however small --u gets. */
+.board-pillars a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
 }
 
 .board-pillars .sym {
