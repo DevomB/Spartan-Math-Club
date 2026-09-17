@@ -155,11 +155,17 @@ export function BoardTrack({
     else run.removeAttribute("data-mode");
   }, [mode]);
 
-  // Screen readers hear the panel once scrolling settles, not on every step.
+  /**
+   * Screen readers hear the panel once scrolling settles, not on every step. Stacked
+   * sections announce nothing: the headings already carry the reader, and the text stays
+   * put rather than emptying, because the live region's content has to match the server's
+   * or hydration throws it away.
+   */
   useEffect(() => {
+    if (mode === "stack") return;
     const timer = window.setTimeout(() => setAnnounced(current), 400);
     return () => window.clearTimeout(timer);
-  }, [current]);
+  }, [current, mode]);
 
   const panelElements = useCallback(
     () => Array.from(trackRef.current?.querySelectorAll<HTMLElement>(":scope > .panel") ?? []),
@@ -398,7 +404,7 @@ export function BoardTrack({
             <span className="counter-hint counter-hint--coarse"> · {hints?.swipe ?? "swipe"}</span>
           </span>
           <span className="visually-hidden" aria-live="polite">
-            {mode === "stack" ? "" : `Panel ${announced + 1} of ${n}: ${panels[announced]?.title ?? ""}`}
+            {`Panel ${announced + 1} of ${n}: ${panels[announced]?.title ?? ""}`}
           </span>
         </div>
       </div>
