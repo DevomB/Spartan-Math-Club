@@ -1,37 +1,22 @@
-import { ContributeInvite } from "@/components/home/contribute-invite";
-import { CultureJoin } from "@/components/home/culture-join";
-import { EarlyInvitation } from "@/components/home/early-invitation";
-import { EventsSection } from "@/components/home/events-section";
-import { EvidenceStrip } from "@/components/home/evidence-strip";
-import { FaqList } from "@/components/home/faq-list";
-import { FinalCta } from "@/components/home/final-cta";
-import { FocusMatrix } from "@/components/home/focus-matrix";
-import { Hero } from "@/components/home/hero";
-import { ProgramList } from "@/components/home/program-list";
-import { ValueLoop } from "@/components/home/value-loop";
-import { WhySmc } from "@/components/home/why-smc";
-import { pageMetadata } from "@/lib/seo";
-import { buildView } from "@/lib/site";
+import { BoardRun } from "@/components/board/board-run";
+import { ChaosFigure } from "@/components/home/chaos-figure";
+import { EventsPreview } from "@/components/home/events-preview";
+import { FeaturedProblem } from "@/components/home/featured-problem";
+import { Pillars } from "@/components/home/pillars";
+import { requestTime } from "@/lib/dates";
 
-export const metadata = pageMetadata("home");
+export const revalidate = 3600;
 
 export default function HomePage() {
-  const view = buildView();
+  const now = requestTime();
 
   return (
-    <main id="content">
-      <Hero view={view} />
-      <EvidenceStrip items={view.truthItems} />
-      <WhySmc />
-      <ValueLoop />
-      <FocusMatrix />
-      <ProgramList programs={view.programs} />
-      <EarlyInvitation founding={view.config.foundingCommunity} />
-      <EventsSection view={view} />
-      <CultureJoin view={view} />
-      <ContributeInvite view={view} />
-      <FaqList items={view.faq} />
-      <FinalCta view={view} />
+    <main id="content" tabIndex={-1}>
+      <BoardRun now={now} />
+      <Pillars />
+      <FeaturedProblem />
+      <EventsPreview now={now} />
+      <ChaosFigure />
     </main>
   );
 }

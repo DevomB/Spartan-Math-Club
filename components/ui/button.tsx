@@ -1,35 +1,41 @@
 import { cn } from "@/lib/cn";
-import type { Cta } from "@/lib/site-types";
-import { externalRel } from "@/lib/utils";
 import Link from "next/link";
 
-type Variant = "primary" | "ghost" | "ghost-light" | "on-paper";
+type Variant = "gold" | "ink" | "ghost" | "ghost-dark" | "link";
 
-type Props = Cta & {
+type Props = {
+  href: string;
+  label: string;
   variant?: Variant;
+  external?: boolean;
+  arrow?: boolean;
   className?: string;
 };
 
-const variantClass: Record<Variant, string> = {
-  primary: "btn btn--primary",
-  ghost: "btn btn--ghost",
-  "ghost-light": "btn btn--ghost btn--ghost-light",
-  "on-paper": "btn btn--on-paper",
-};
-
-export function Button({ href, label, external, variant = "primary", className }: Props) {
-  const classes = cn(variantClass[variant], className);
-  if (external) {
+export function Button({ href, label, variant = "gold", external, arrow = true, className }: Props) {
+  const classes = cn("btn", `btn--${variant}`, className);
+  const content = (
+    <>
+      <span>{label}</span>
+      {arrow ? (
+        <span className="btn-arrow" aria-hidden="true">
+          →
+        </span>
+      ) : null}
+    </>
+  );
+  if (external || href.startsWith("mailto:") || /^https?:/.test(href)) {
+    const newTab = /^https?:/.test(href);
     return (
-      <a className={classes} href={href} {...externalRel(true)}>
-        {label}
-        <span className="visually-hidden"> (opens in a new tab)</span>
+      <a className={classes} href={href} {...(newTab ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
+        {content}
+        {newTab ? <span className="visually-hidden"> (opens in a new tab)</span> : null}
       </a>
     );
   }
   return (
     <Link className={classes} href={href}>
-      {label}
+      {content}
     </Link>
   );
 }

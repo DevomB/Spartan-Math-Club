@@ -1,0 +1,508 @@
+/* ==========================================================================
+   The board run (brand v2.1 §5). Server renders data-mode="stack"; JS upgrades
+   to "pan" (≥ 860px) or "swipe" (< 860px). Reduced motion stays "stack".
+   ========================================================================== */
+
+.run {
+  --n: 7;
+  --board-h: calc(100svh - var(--header-h) - var(--safe-top));
+  position: relative;
+  isolation: isolate;
+  border-bottom: 1px solid var(--ink-line);
+}
+
+.run[data-mode="pan"] {
+  height: calc(var(--n) * var(--board-h));
+}
+
+.stick {
+  position: relative;
+  overflow: hidden;
+}
+
+.run[data-mode="pan"] .stick {
+  position: sticky;
+  top: calc(var(--header-h) + var(--safe-top));
+  height: var(--board-h);
+}
+
+.run::before {
+  /* Eraser smudges: wide, faint, never busy. */
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(40rem 22rem at 12% 8%, rgb(243 241 234 / 0.035), transparent 70%),
+    radial-gradient(34rem 18rem at 88% 42%, rgb(243 241 234 / 0.03), transparent 70%),
+    radial-gradient(46rem 26rem at 30% 86%, rgb(243 241 234 / 0.028), transparent 70%);
+}
+
+.ghosts {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  font-family: var(--serif);
+  font-size: clamp(1.4rem, 1rem + 2vw, 3rem);
+  color: var(--chalk);
+  opacity: 0.05;
+  white-space: nowrap;
+  will-change: transform;
+}
+
+.ghosts > span {
+  position: absolute;
+}
+
+.track {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: calc(var(--n) * 100%);
+  height: 100%;
+  will-change: transform;
+}
+
+.panel {
+  position: relative;
+  flex: none;
+  display: grid;
+  align-content: center;
+  width: calc(100% / var(--n));
+  height: 100%;
+  min-width: 0;
+  padding: clamp(1.5rem, 4svh, 3rem) var(--gutter) calc(var(--tray-h) + clamp(1.5rem, 4svh, 3rem));
+}
+
+.panel + .panel::before {
+  content: "";
+  position: absolute;
+  top: 18%;
+  bottom: 22%;
+  left: 0;
+  width: 1px;
+  background: linear-gradient(transparent, var(--ink-line), transparent);
+}
+
+.pin {
+  display: grid;
+  gap: clamp(0.9rem, 2.2svh, 1.6rem);
+  max-width: 64rem;
+  min-width: 0;
+}
+
+.eyebrow-board {
+  font-family: var(--mono);
+  font-size: var(--text-label);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--dust);
+}
+
+.board-h,
+.board-h2 {
+  font-family: var(--board-font);
+  font-weight: 400;
+  text-wrap: balance;
+  overflow-wrap: break-word;
+}
+
+.board-h {
+  font-size: var(--text-board);
+  line-height: 1.02;
+  letter-spacing: 0.005em;
+}
+
+.board-h2 {
+  font-size: var(--text-board-2);
+  line-height: 1.05;
+}
+
+.chalky {
+  filter: url(#chalk);
+}
+
+.y {
+  color: var(--yellow);
+}
+
+.r {
+  color: var(--red);
+}
+
+.b {
+  color: var(--blue);
+}
+
+.gr {
+  color: var(--green);
+}
+
+.d {
+  color: var(--dust);
+}
+
+.formal {
+  display: block;
+  font-size: var(--text-formal);
+  color: var(--dust);
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
+}
+
+.board-lede {
+  max-width: 40rem;
+  font-size: var(--text-lede);
+  color: var(--dust);
+}
+
+.board-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.5rem;
+}
+
+.label {
+  font-family: var(--hand);
+  font-weight: 700;
+  font-size: var(--text-hand);
+  line-height: 1;
+}
+
+.u-y {
+  padding-bottom: 0.12em;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 12' preserveAspectRatio='none'%3E%3Cpath d='M2 8 C 40 3, 90 11, 130 6 S 185 4, 198 7' fill='none' stroke='%23FFD23F' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E")
+    bottom / 100% 0.35em no-repeat;
+}
+
+.u-b {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--blue);
+  text-decoration: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 12' preserveAspectRatio='none'%3E%3Cpath d='M2 7 C 50 10, 110 3, 198 7' fill='none' stroke='%234FB3FF' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E")
+    left calc(100% - 0.55rem) / 100% 0.3em no-repeat;
+}
+
+.u-b:hover {
+  color: var(--chalk);
+}
+
+.circle-r {
+  position: relative;
+  display: inline-block;
+  padding: 0.1em 0.35em;
+}
+
+.circle-r::after {
+  content: "";
+  position: absolute;
+  inset: -0.25em -0.4em;
+  pointer-events: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 80' preserveAspectRatio='none'%3E%3Cpath d='M20 44 C 16 14, 120 4, 176 18 C 206 28, 196 66, 120 74 C 60 80, 8 66, 14 40 C 18 24, 60 10, 96 9' fill='none' stroke='%23FF5A52' stroke-width='3.2' stroke-linecap='round'/%3E%3C/svg%3E")
+    center / 100% 100% no-repeat;
+}
+
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 2rem;
+}
+
+.facts b {
+  margin-right: 0.5rem;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--dust);
+}
+
+.mondays {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+}
+
+.mondays li {
+  padding: 0.3rem 0.45rem;
+  border: 1px solid var(--ink-line);
+  border-radius: 2px;
+  color: var(--dust);
+}
+
+.mondays .past {
+  opacity: 0.4;
+  text-decoration: line-through;
+}
+
+.mondays .next {
+  border-color: var(--yellow);
+  color: var(--yellow);
+}
+
+.mondays .skip {
+  border-color: var(--red);
+  color: var(--red);
+  text-decoration: line-through;
+}
+
+.board-pillars {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+  gap: 0.6rem 2rem;
+}
+
+.board-pillars li {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  align-items: baseline;
+  gap: 0.4rem;
+}
+
+.board-pillars .sym {
+  font-size: 1.3rem;
+  color: var(--yellow);
+}
+
+.board-pillars a {
+  color: var(--blue);
+}
+
+.board-proof {
+  display: grid;
+  gap: 0.4rem;
+  max-width: 52rem;
+  font-family: var(--hand);
+  font-weight: 500;
+  font-size: clamp(1.5rem, 1.1rem + 1vw, 2.05rem);
+  line-height: 1.35;
+}
+
+.board-proof .tex .katex {
+  font-size: 0.8em;
+}
+
+.board-proof .board-qed {
+  color: var(--green);
+}
+
+.placeholder-tag {
+  justify-self: start;
+  padding: 0.2rem 0.5rem;
+  border: 1px dashed var(--ink-line-strong);
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--dust);
+}
+
+.board-crest {
+  width: min(9rem, 30vw);
+  height: auto;
+  color: var(--chalk);
+}
+
+/* ---------- Chalk tray ---------- */
+
+.tray {
+  position: absolute;
+  z-index: 4;
+  inset: auto 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  height: var(--tray-h);
+  padding-inline: var(--gutter);
+  background: linear-gradient(#2a2b28, #151614 40%, #0d0e0c);
+  box-shadow:
+    0 -1px 0 rgb(243 241 234 / 0.08),
+    0 -14px 30px -10px rgb(0 0 0 / 0.6);
+}
+
+.sticks {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.sticks i {
+  display: block;
+  width: 2.1rem;
+  height: 0.5rem;
+  border-radius: 2px 3px 3px 2px;
+  box-shadow: inset 0 -2px 0 rgb(0 0 0 / 0.2);
+}
+
+.sticks i:nth-child(1) {
+  background: var(--chalk);
+  transform: rotate(-4deg);
+}
+
+.sticks i:nth-child(2) {
+  width: 1.5rem;
+  background: var(--yellow);
+  transform: rotate(3deg);
+}
+
+.sticks i:nth-child(3) {
+  background: var(--red);
+  transform: rotate(-1deg);
+}
+
+.sticks i:nth-child(4) {
+  width: 1.2rem;
+  background: var(--blue);
+  transform: rotate(6deg);
+}
+
+.sticks i:nth-child(5) {
+  width: 1.8rem;
+  background: var(--green);
+  transform: rotate(-3deg);
+}
+
+.ticks {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.ticks button {
+  display: grid;
+  place-items: center;
+  width: clamp(36px, calc((100vw - 2 * var(--gutter)) / var(--n)), 44px);
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.ticks button span {
+  display: block;
+  width: 1.1rem;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--dust);
+  opacity: 0.5;
+  transition:
+    width 240ms var(--ease),
+    background-color 240ms,
+    opacity 240ms;
+}
+
+.ticks button[aria-current="true"] span {
+  width: 2rem;
+  background: var(--yellow);
+  opacity: 1;
+}
+
+.counter {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--dust);
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+@media (max-width: 559px) {
+  .sticks,
+  .counter-hint {
+    display: none;
+  }
+
+  .tray {
+    justify-content: center;
+  }
+
+  /* Still announced as a live region; the ticks show position visually. */
+  .counter {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+}
+
+/* ---------- Swipe (phones): native horizontal scroll, the next panel peeks ---------- */
+
+.run[data-mode="swipe"] .track {
+  width: 100%;
+  height: auto;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  transform: none !important;
+}
+
+.run[data-mode="swipe"] .track::-webkit-scrollbar {
+  display: none;
+}
+
+.run[data-mode="swipe"] .panel {
+  width: 88%;
+  height: auto;
+  min-height: min(74svh, 40rem);
+  align-content: start;
+  padding: 2.5rem 1rem 2.5rem var(--gutter);
+  scroll-snap-align: start;
+}
+
+.run[data-mode="swipe"] .tray {
+  position: relative;
+}
+
+.run[data-mode="swipe"] .ghosts {
+  display: none;
+}
+
+/* ---------- Stack (reduced motion, no JS): plain vertical sections ---------- */
+
+.run[data-mode="stack"] .track {
+  flex-direction: column;
+  width: 100%;
+  height: auto;
+  transform: none !important;
+}
+
+.run[data-mode="stack"] .panel {
+  width: 100%;
+  height: auto;
+  padding-block: clamp(3rem, 2rem + 4vw, 5rem);
+}
+
+.run[data-mode="stack"] .panel--top {
+  min-height: min(80svh, 48rem);
+}
+
+.run[data-mode="stack"] .panel + .panel::before {
+  top: 0;
+  right: var(--gutter);
+  bottom: auto;
+  left: var(--gutter);
+  width: auto;
+  height: 1px;
+  background: var(--ink-line);
+}
+
+.run[data-mode="stack"] .tray,
+.run[data-mode="stack"] .ghosts {
+  display: none;
+}

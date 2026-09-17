@@ -1,46 +1,54 @@
-import type { Viewport } from "next";
-import type { ReactNode } from "react";
-import { AnnouncementBar } from "@/components/home/announcement-bar";
+import { ChalkDefs } from "@/components/brand/chalk-defs";
+import { ConsoleHello } from "@/components/layout/console-hello";
+import { FloatingPrompt } from "@/components/layout/floating-prompt";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
+import { Glyph } from "@/components/math/tex";
 import { SkipLink } from "@/components/layout/skip-link";
 import { StructuredData } from "@/components/seo/structured-data";
-import { site } from "@/content/site";
-import { ibmPlexMono, manrope } from "@/lib/fonts";
+import { events, weeklyMeetings } from "@/content/events";
+import { promptCandidates, requestTime, structuredEvents } from "@/lib/dates";
+import { caveat, computerModern, fredericka, plexMono, plexSans } from "@/lib/fonts";
 import { rootMetadata } from "@/lib/seo";
-import { buildView } from "@/lib/site";
-import { validateSite } from "@/lib/utils";
+import "katex/dist/katex.min.css";
+import type { Viewport } from "next";
+import type { ReactNode } from "react";
 import "./globals.css";
-
-validateSite(site);
-
-const view = buildView();
 
 export const metadata = rootMetadata();
 
 export const viewport: Viewport = {
   viewportFit: "cover",
+  themeColor: "#121311",
+  colorScheme: "dark",
 };
 
+/** Event-dependent chrome (prompt candidates, JSON-LD) refreshes hourly. */
+export const revalidate = 3600;
+
+const fontVariables = [computerModern, plexSans, plexMono, fredericka, caveat].map((font) => font.variable).join(" ");
+
 export default function RootLayout({ children }: { children: ReactNode }) {
+  const now = requestTime();
+
   return (
-    <html
-      lang="en"
-      className={`${manrope.variable} ${ibmPlexMono.variable} js`}
-      suppressHydrationWarning
-    >
+    <html lang="en" className={fontVariables}>
       <body>
-        <StructuredData />
+        <ChalkDefs />
+        <StructuredData upcoming={structuredEvents(events, weeklyMeetings, now)} />
         <SkipLink />
-        {view.announcement && view.announcementText ? (
-          <AnnouncementBar
-            text={view.announcementText}
-            href={view.announcement.href}
-          />
-        ) : null}
-        <SiteHeader nav={view.nav} joinCta={{ label: "Join SMC", href: "/join" }} />
+        <SiteHeader
+          glyphs={{
+            "/events": <Glyph tex={String.raw`\exists`} />,
+            "/problems": <Glyph tex={String.raw`\vdash`} />,
+            "/consulting": <Glyph tex={String.raw`\Sigma`} />,
+            "/join": <Glyph tex={String.raw`\forall`} />,
+          }}
+        />
         {children}
-        <SiteFooter view={view} />
+        <SiteFooter />
+        <FloatingPrompt candidates={promptCandidates(events, weeklyMeetings, now)} />
+        <ConsoleHello />
       </body>
     </html>
   );

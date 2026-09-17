@@ -1,49 +1,68 @@
 "use client";
 
-import type { NavItem } from "@/lib/site-types";
+import type { NavItem } from "@/components/layout/nav";
+import { cn } from "@/lib/cn";
 import Link from "next/link";
-import { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
+import { useEffect, useRef, type ReactNode } from "react";
 
-export function MobileMenu({ items, joinHref }: { items: NavItem[]; joinHref: string }) {
+export function MobileMenu({ items, glyphs = {} }: { items: NavItem[]; glyphs?: Record<string, ReactNode> }) {
   const detailsRef = useRef<HTMLDetailsElement>(null);
+  const pathname = usePathname();
 
   useEffect(() => {
     const el = detailsRef.current;
     if (!el) return;
-
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") el.open = false;
+      if (event.key === "Escape" && el.open) {
+        el.open = false;
+        el.querySelector("summary")?.focus();
+      }
     };
     const onToggle = () => {
-      document.body.style.overflow = el.open ? "hidden" : "";
+      document.documentElement.classList.toggle("menu-open", el.open);
     };
-
     el.addEventListener("toggle", onToggle);
     document.addEventListener("keydown", onKey);
     return () => {
       el.removeEventListener("toggle", onToggle);
       document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = "";
+      document.documentElement.classList.remove("menu-open");
     };
   }, []);
 
+  // Close after client-side navigation.
+  useEffect(() => {
+    if (detailsRef.current) detailsRef.current.open = false;
+  }, [pathname]);
+
+  const close = () => {
+    if (detailsRef.current) detailsRef.current.open = false;
+  };
+
   return (
     <details ref={detailsRef} className="mobile-nav">
-      <summary>
-        <span className="menu-closed">Menu</span>
-        <span className="menu-open">Close</span>
+      <summary aria-label="Menu">
+        <span className="menu-icon" aria-hidden="true">
+          <span />
+          <span />
+        </span>
       </summary>
       <div className="mobile-nav-sheet">
         <nav aria-label="Mobile">
-          {items.map((item) => (
-            <Link key={item.href} href={item.href} onClick={() => { detailsRef.current && (detailsRef.current.open = false); }}>
-              {item.label}
-            </Link>
-          ))}
-          <Link href={joinHref} onClick={() => { detailsRef.current && (detailsRef.current.open = false); }}>
-            Join SMC
-          </Link>
+          <ol>
+            {items.map((item, index) => (
+              <li key={item.href}>
+                <Link href={item.href} onClick={close} className={cn(item.accent && "is-accent")}>
+                  <span className="mobile-index">{String(index + 1).padStart(2, "0")}</span>
+                  {glyphs[item.href] ? <span className="nav-glyph">{glyphs[item.href]}</span> : null}
+                  {item.label}
+                </Link>
+              </li>
+            ))}
+          </ol>
         </nav>
+        <p className="mobile-foot">For all problems, there exists a Monday.</p>
       </div>
     </details>
   );

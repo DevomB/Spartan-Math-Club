@@ -1,56 +1,27 @@
+// Static checks that public routes, metadata, and robots stay wired up.
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
+const read = (file) => readFileSync(join(root, file), "utf8");
 
-function joinPublicUrl(origin, basePath, path) {
-  const host = origin.replace(/\/$/, "");
-  const base = !basePath || basePath === "/" ? "" : `/${basePath.replace(/^\/|\/$/g, "")}`;
-  if (path === "/" || path === "") return `${host}${base}`;
-  const suffix = path.startsWith("/") ? path : `/${path}`;
-  return `${host}${base}${suffix}`;
+const seo = read("lib/seo.ts");
+const pathsLine = seo.split("\n").find((line) => line.includes("PUBLIC_PATHS ="));
+assert.ok(pathsLine, "PUBLIC_PATHS is declared");
+const paths = [...pathsLine.matchAll(/"(\/[a-z-]*)"/g)].map((match) => match[1]);
+
+for (const path of paths) {
+  const page = path === "/" ? "app/page.tsx" : `app${path}/page.tsx`;
+  assert.ok(existsSync(join(root, page)), `${path} has ${page}`);
+  if (path !== "/") assert.match(read(page), /pageMetadata\(/, `${page} exports pageMetadata`);
 }
 
-assert.equal(joinPublicUrl("https://smc.test", "/", "/"), "https://smc.test");
-assert.equal(joinPublicUrl("https://smc.test", "/", "/join"), "https://smc.test/join");
-assert.equal(
-  joinPublicUrl("https://org.github.io", "/smc-website", "/privacy"),
-  "https://org.github.io/smc-website/privacy",
-);
-assert.equal(
-  joinPublicUrl("https://org.github.io/", "/smc-website/", "/sitemap.xml"),
-  "https://org.github.io/smc-website/sitemap.xml",
-);
-
-const seo = readFileSync(join(root, "lib/seo.ts"), "utf8");
-const indexLine = seo.split("\n").find((line) => line.includes("INDEXABLE_PATHS ="));
-assert.ok(indexLine);
-assert.match(indexLine, /\["\/", "\/join", "\/contribute", "\/privacy"\]/);
-assert.equal(indexLine.includes("404"), false);
-assert.equal(indexLine.includes("insights"), false);
-assert.equal(indexLine.includes("blog"), false);
-assert.equal(indexLine.includes("resources"), false);
-
-const sitemap = readFileSync(join(root, "app/sitemap.ts"), "utf8");
-assert.match(sitemap, /sitemapEntries/);
-
-const robots = readFileSync(join(root, "app/robots.ts"), "utf8");
-assert.match(robots, /robotsSpec/);
-
-const layout = readFileSync(join(root, "app/layout.tsx"), "utf8");
-assert.match(layout, /rootMetadata/);
-assert.match(layout, /StructuredData/);
-
-for (const [file, route] of [
-  ["app/join/page.tsx", "join"],
-  ["app/contribute/page.tsx", "contribute"],
-  ["app/privacy/page.tsx", "privacy"],
-  ["app/not-found.tsx", "notFound"],
-]) {
-  const source = readFileSync(join(root, file), "utf8");
-  assert.match(source, new RegExp(`pageMetadata\\("${route}"\\)`));
-}
+assert.match(read("app/robots.ts"), /robotsSpec/);
+assert.match(read("app/sitemap.ts"), /sitemapEntries/);
+assert.match(read("app/layout.tsx"), /rootMetadata/);
+assert.match(read("app/layout.tsx"), /StructuredData/);
+assert.match(read("app/not-found.tsx"), /index: false/);
 
 console.log("seo checks passed");

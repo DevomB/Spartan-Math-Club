@@ -1,63 +1,61 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { CrestLockup } from "@/components/brand/crest";
 import { MobileMenu } from "@/components/layout/mobile-menu";
-import type { Cta, NavItem } from "@/lib/site-types";
+import { joinNav, primaryNav } from "@/components/layout/nav";
 import { cn } from "@/lib/cn";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useEffect, useState, type ReactNode } from "react";
 
-type Props = {
-  nav: NavItem[];
-  joinCta: Cta;
-  tone?: "dark" | "light";
-};
-
-export function SiteHeader({ nav, joinCta, tone = "dark" }: Props) {
+/** `glyphs` maps nav hrefs to pre-typeset decorative symbols (aria-hidden). */
+export function SiteHeader({ glyphs = {} }: { glyphs?: Record<string, ReactNode> }) {
+  const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 56);
+    const onScroll = () => setScrolled(window.scrollY > 24);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  const isActive = (href: string) =>
+    !href.includes("#") && (pathname === href || pathname.startsWith(`${href}/`));
+
   return (
-    <header
-      className={cn(
-        "site-header",
-        tone === "dark" && "site-header--dark",
-        scrolled && "is-scrolled",
-      )}
-    >
+    <header className={cn("site-header", scrolled && "is-scrolled")}>
       <div className="header-inner">
-        <Link className="wordmark" href="/">
-          SMC
+        <Link className="wordmark" href="/" aria-label="Spartan Math Club, home">
+          <CrestLockup />
         </Link>
-        <ul className="nav-fallback">
-          {nav.map((item) => (
-            <li key={item.href}>
-              <Link href={item.href}>{item.label}</Link>
-            </li>
-          ))}
-          <li>
-            <Link href={joinCta.href}>Join SMC</Link>
-          </li>
-        </ul>
-        <nav aria-label="Primary">
-          <ul className="nav-desktop">
-            {nav.map((item) => (
+        <nav aria-label="Primary" className="nav-desktop">
+          <ul>
+            {primaryNav.map((item) => (
               <li key={item.href}>
-                <Link href={item.href}>{item.label}</Link>
+                <Link
+                  href={item.href}
+                  className={cn("nav-link", item.accent && "nav-link--accent")}
+                  aria-current={isActive(item.href) ? "page" : undefined}
+                >
+                  {glyphs[item.href] ? <span className="nav-glyph">{glyphs[item.href]}</span> : null}
+                  {item.label}
+                </Link>
               </li>
             ))}
             <li>
-              <Button {...joinCta} label="Join SMC" variant={tone === "dark" ? "primary" : "on-paper"} />
+              <Link
+                href={joinNav.href}
+                className="btn btn--gold btn--sm"
+                aria-current={isActive(joinNav.href) ? "page" : undefined}
+              >
+                {glyphs[joinNav.href] ? <span className="nav-glyph">{glyphs[joinNav.href]}</span> : null}
+                <span>{joinNav.label}</span>
+              </Link>
             </li>
           </ul>
         </nav>
-        <MobileMenu items={nav} joinHref={joinCta.href} />
+        <MobileMenu items={[...primaryNav, joinNav]} glyphs={glyphs} />
       </div>
     </header>
   );
