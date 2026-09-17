@@ -10,7 +10,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "check": "node --experimental-strip-types --no-warnings scripts/check-expression.mjs && node --experimental-strip-types --no-warnings scripts/check-dates.mjs && node scripts/check-seo.mjs"
+    "check": "node --experimental-strip-types --no-warnings scripts/check-expression.mjs && node --experimental-strip-types --no-warnings scripts/check-dates.mjs && node scripts/check-seo.mjs && node scripts/check-assets.mjs"
   },
   "dependencies": {
     "katex": "^0.18.7",
