@@ -5,10 +5,10 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   async redirects() {
     return [
-      // The alumni "Contribute" page from the old preview now lives on /join.
-      { source: "/contribute", destination: "/join#speakers", permanent: true },
+      { source: "/contribute", destination: "/join", permanent: true },
       { source: "/puzzles", destination: "/problems", permanent: false },
       { source: "/calendar", destination: "/events", permanent: false },
+      { source: "/consulting", destination: "/applied-math", permanent: true },
     ];
   },
 };

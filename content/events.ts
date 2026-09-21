@@ -73,24 +73,34 @@ export const weeklyMeetings: WeeklyMeeting[] = [
     endTime: "16:00",
     location: "SCI 321A",
     summary:
-      "The standing meeting: problems on the board, arguments about them, and whatever anyone brings. Drop in any Monday — no RSVP, no prerequisite.",
+      "Each meeting centers on two or three problems worked collaboratively, followed by club announcements and time to connect with other members.",
     // Fall 2026 instruction: first Monday Aug 24, last day of instruction Mon Dec 7.
     startsOn: "2026-08-24",
     endsOn: "2026-12-07",
-    // Sep 7: Labor Day, campus closed. Oct 19: "Are You Smarter Than a Quarter?" replaces the meeting.
-    skipDates: ["2026-09-07", "2026-10-19"],
+    // Sep 7: Labor Day. Sep 21: no meeting. Sep 28 and Oct 19 are represented as special events below.
+    skipDates: ["2026-09-07", "2026-09-21", "2026-09-28", "2026-10-19"],
   },
 ];
 
 export const events: ClubEvent[] = [
+  {
+    id: "weekly-meeting-special-announcement-2026-09-28",
+    title: "Weekly Meeting and Special Announcement",
+    kind: "Weekly Meeting",
+    startsAt: "2026-09-28T15:00:00-07:00",
+    endsAt: "2026-09-28T16:00:00-07:00",
+    location: "SCI 321A",
+    summary:
+      "Our regular collaborative problem-solving meeting, with an important announcement about what is ahead for the club.",
+  },
   {
     id: "are-you-smarter-than-a-quarter-2026",
     title: "Are You Smarter Than a Quarter?",
     kind: "Competition",
     startsAt: "2026-10-19T15:00:00-07:00",
     endsAt: "2026-10-19T16:00:00-07:00",
-    location: "Student Union, Room 5",
-    summary: "A game-show-style math challenge. Open to all SJSU students — no math prerequisite.",
-    formal: String.raw`\text{you} \models (\text{you} > \$0.25)\ ?`,
+    location: "Student Union Meeting Room 5",
+    summary:
+      "A one-hour, game-show-style mathematics event open to SJSU students. Participants will work through accessible challenges in a lively team setting.",
   },
 ];

@@ -11,10 +11,10 @@ type Status =
   | { kind: "invalid"; message: string };
 
 const encouragements = [
-  "Not quite. Check your work — or your assumptions.",
-  "Still no. Have you tried a smaller case?",
-  "Close only counts in analysis. Try a hint?",
-  "The problem is winning. Take a walk, come back.",
+  "Not quite. Review your work and assumptions.",
+  "Try testing a smaller case.",
+  "Consider using one of the hints.",
+  "Take another look at the structure of the problem.",
 ];
 
 export function AnswerCheck({
@@ -88,7 +88,7 @@ export function AnswerCheck({
             <span className="answer-glyph" aria-hidden="true">
               {glyphs.models}
             </span>
-            <strong>Correct.</strong> {status.kind === "correct" ? "Your answer satisfies it. You're one of us now." : "Solved. Nicely done."}
+            <strong>Correct.</strong> {status.kind === "correct" ? "Your answer satisfies the problem." : "This problem is marked as solved."}
           </>
         ) : status.kind === "wrong" ? (
           <>
@@ -106,13 +106,13 @@ export function AnswerCheck({
   );
 }
 
-/** Small ✓ badge for archive listings. */
+/** Small status badge for archive listings. */
 export function SolvedBadge({ slug }: { slug: string }) {
   const solved = useSolved().has(slug);
   if (!solved) return null;
   return (
     <span className="solved-badge" title="You've solved this one">
-      ✓ Solved
+      Solved
     </span>
   );
 }

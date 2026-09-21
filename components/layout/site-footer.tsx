@@ -1,146 +1,37 @@
-import { Crest } from "@/components/brand/crest";
-import { Tex } from "@/components/math/tex";
+import { primaryNav } from "@/components/layout/nav";
 import { site } from "@/content/site";
-import { clubEmail, consultingEmail, socialLinks } from "@/lib/links";
+import { clubEmail, socialLinks } from "@/lib/links";
 import Link from "next/link";
 
-/** Front-of-the-textbook key, so nobody is left out of the joke. */
-const SYMBOLS: Array<[string, string]> = [
-  [String.raw`\forall`, "for all"],
-  [String.raw`\exists`, "there exists"],
-  [String.raw`\exists!`, "exactly one"],
-  [String.raw`\neg`, "not"],
-  [String.raw`\land`, "and"],
-  [String.raw`\lor`, "or"],
-  [String.raw`\implies`, "implies"],
-  [String.raw`\iff`, "if and only if"],
-  [String.raw`\vdash`, "provable"],
-  [String.raw`\models`, "true / satisfies"],
-  [String.raw`\top`, "true"],
-  [String.raw`\bot`, "contradiction"],
-  [String.raw`\Box`, "necessarily"],
-  [String.raw`\therefore`, "therefore"],
-  [String.raw`\in`, "is in"],
-  [String.raw`\blacksquare`, "end of proof"],
-];
-
 export function SiteFooter() {
-  const socials = socialLinks();
   const email = clubEmail();
-  const consulting = consultingEmail();
+  const communityLinks = socialLinks();
 
   return (
     <footer className="site-footer">
-      <div className="container">
-        <div className="footer-top">
-          <div className="footer-brand">
-            <Link href="/" className="footer-crest-link" aria-label="Spartan Math Club, home">
-              <Crest variant="full" className="footer-crest" />
-            </Link>
-            <p className="footer-name">Spartan Math Club</p>
-            <p className="footer-tagline">{site.tagline}</p>
-            <p className="footer-signature">
-              <Tex hidden className="footer-qed">{String.raw`\exists!\, c \in \text{Clubs} : \text{Math}(c) \land \text{Spartan}(c)`}</Tex>
-              <span className="footer-read">One club. Exactly one.</span>
-            </p>
-          </div>
-          <nav className="footer-cols" aria-label="Footer">
-            <div>
-              <p className="footer-heading">Club</p>
-              <ul>
-                <li>
-                  <Link href="/#about">About</Link>
-                </li>
-                <li>
-                  <Link href="/events">Events</Link>
-                </li>
-                <li>
-                  <Link href="/problems">Problem archive</Link>
-                </li>
-                <li>
-                  <Link href="/join">Join</Link>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <p className="footer-heading">Consulting</p>
-              <ul>
-                <li>
-                  <Link href="/consulting">Services</Link>
-                </li>
-                <li>
-                  <Link href="/consulting#process">Process</Link>
-                </li>
-                <li>
-                  <Link href="/consulting#inquire">Start a consult</Link>
-                </li>
-                {consulting ? (
-                  <li>
-                    <a href={`mailto:${consulting}`}>{consulting}</a>
-                  </li>
-                ) : null}
-              </ul>
-            </div>
-            <div>
-              <p className="footer-heading">Elsewhere</p>
-              <ul>
-                {socials.map((link) => (
-                  <li key={link.href}>
-                    <a href={link.href} target="_blank" rel="noopener noreferrer">
-                      {link.label}
-                    </a>
-                  </li>
-                ))}
-                {email ? (
-                  <li>
-                    <a href={`mailto:${email}`}>Email</a>
-                  </li>
-                ) : null}
-                {site.links.github ? (
-                  <li>
-                    <a href={site.links.github} target="_blank" rel="noopener noreferrer">
-                      Source on GitHub
-                    </a>
-                  </li>
-                ) : null}
-                <li>
-                  <Link href="/privacy">Privacy</Link>
-                </li>
-              </ul>
-            </div>
-          </nav>
+      <div className="container footer-layout">
+        <div className="footer-identity">
+          <p className="footer-name">Spartan Mathematics Club</p>
+          <p>{site.campus}</p>
+          <p className="footer-tagline">{site.tagline}</p>
         </div>
-        <details className="symbols">
-          <summary>List of symbols</summary>
-          <dl className="symbols-list">
-            {SYMBOLS.map(([source, meaning]) => (
-              <div key={source}>
-                <dt>
-                  <Tex hidden>{source}</Tex>
-                </dt>
-                <dd>{meaning}</dd>
-              </div>
-            ))}
-          </dl>
-        </details>
-        <div className="footer-bottom">
-          <p className="disclosure">{site.disclosure}</p>
-          <p className="footer-meta">
-            <span>
-              © {site.year} {site.name}
-            </span>
-            <span aria-hidden="true">·</span>
-            <span>
-              0 cookies · 0 trackers · <Tex hidden>{String.raw`\infty`}</Tex>
-              <span className="visually-hidden">infinitely many</span> problems
-            </span>
-            <span aria-hidden="true">·</span>
-            <span className="footer-signoff">
-              <Tex hidden>{String.raw`\therefore\ \text{Spartan Math Club}`}</Tex>{" "}
-              <Tex hidden className="gr">{String.raw`\blacksquare`}</Tex>
-            </span>
-          </p>
-        </div>
+        <nav className="footer-links" aria-label="Footer navigation">
+          {primaryNav.map((item) => (
+            <Link key={item.href} href={item.href}>{item.label}</Link>
+          ))}
+          <Link href="/problems">Problem archive</Link>
+          <Link href="/privacy">Privacy</Link>
+          {email ? <a href={`mailto:${email}`}>Email</a> : null}
+          {communityLinks.map((link) => (
+            <a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer">
+              {link.label}
+            </a>
+          ))}
+        </nav>
+      </div>
+      <div className="container footer-bottom">
+        <p>{site.disclosure}</p>
+        <p>© {site.year} {site.name}</p>
       </div>
     </footer>
   );
