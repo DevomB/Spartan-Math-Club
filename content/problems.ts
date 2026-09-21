@@ -2,9 +2,9 @@
  * Problem archive. Text fields accept inline math `$...$` and display
  * math `$$...$$` (KaTeX). Write them with String.raw so backslashes survive.
  *
- * `answer` is checked client-side by numeric comparison, so anyone reading
- * the page source can find it. That is fine: if you are reading the source
- * of a math club website, you have already passed the real test.
+ * Numeric `answer` values are checked client-side, so anyone reading the
+ * page source can find them. Strategy problems may omit the answer field and
+ * present their reasoning through hints and a written solution instead.
  */
 const tex = String.raw;
 
@@ -32,8 +32,10 @@ export type Problem = {
   difficulty: Difficulty;
   statement: string[];
   /** Short description of the answer format shown under the input. */
-  answerFormat: string;
-  answer: number;
+  answerFormat?: string;
+  answer?: number;
+  /** Guidance shown when a problem calls for an argument rather than a numeric answer. */
+  responseNote?: string;
   /** Absolute tolerance. Defaults to 1e-6. */
   tolerance?: number;
   hints: string[];
@@ -48,10 +50,10 @@ export const problems: Problem[] = [
     topic: "Probability · Optimal stopping",
     difficulty: 2,
     statement: [
-      tex`You roll a fair six-sided die and are paid its face value in dollars. After seeing the roll you may either keep it, or reroll exactly once — in which case you must keep the second roll.`,
+      tex`You roll a fair six-sided die and are paid its face value in dollars. After seeing the roll you may either keep it, or reroll exactly once. If you reroll, you must keep the second roll.`,
       tex`Playing optimally, what is your expected payout?`,
     ],
-    answerFormat: "A number, fraction, or expression — e.g. 3.5 or 7/2",
+    answerFormat: "A number, fraction, or expression, such as 3.5 or 7/2",
     answer: 17 / 4,
     hints: [
       tex`If you reroll, the value of the game from that point on is fixed. What is it?`,
@@ -102,68 +104,13 @@ $$E_0 = 1 + \tfrac12 E_1 + \tfrac12 E_0, \qquad E_1 = 1 + \tfrac12\cdot 0 + \tfr
     ],
     solution: [
       tex`By the triangle inequality, lengths $a + b + c = 1$ form a triangle iff $\max(a,b,c) < \tfrac12$.`,
-      tex`By symmetry take $x < y$ (half the square). The pieces are $x,\ y - x,\ 1 - y$, and all are below $\tfrac12$ when $x < \tfrac12$, $y > \tfrac12$, and $y - x < \tfrac12$ — a triangle of area $\tfrac18$.`,
+      tex`By symmetry take $x < y$ (half the square). The pieces are $x,\ y - x,\ 1 - y$, and all are below $\tfrac12$ when $x < \tfrac12$, $y > \tfrac12$, and $y - x < \tfrac12$. This region is a triangle of area $\tfrac18$.`,
       tex`Doubling for the case $y < x$ gives $2 \cdot \tfrac18 = \tfrac14$.`,
     ],
   },
   {
-    slug: "last-two-digits",
-    number: 4,
-    title: "Last Two Digits",
-    topic: "Number theory · Modular arithmetic",
-    difficulty: 1,
-    statement: [tex`What are the last two digits of $7^{2026}$?`],
-    answerFormat: "A two-digit number",
-    answer: 49,
-    hints: [
-      tex`Compute small powers of $7 \bmod 100$ until something nice happens.`,
-    ],
-    solution: [
-      tex`$7^2 = 49$ and $7^4 = 2401 \equiv 1 \pmod{100}$, so powers of $7$ cycle with period $4$ modulo $100$.`,
-      tex`Since $2026 = 4 \cdot 506 + 2$, $$7^{2026} = \left(7^4\right)^{506}\cdot 7^2 \equiv 1 \cdot 49 \equiv 49 \pmod{100}.$$`,
-    ],
-  },
-  {
-    slug: "factorial-zeros",
-    number: 5,
-    title: "Zeros at the End",
-    topic: "Number theory · Legendre's formula",
-    difficulty: 1,
-    statement: [tex`How many zeros does $2026!$ end with?`],
-    answerFormat: "An integer",
-    answer: 505,
-    hints: [
-      tex`Each trailing zero is a factor of $10 = 2 \cdot 5$, and factors of $2$ are plentiful.`,
-    ],
-    solution: [
-      tex`Count factors of $5$ with Legendre's formula:
-$$\sum_{k\ge1}\left\lfloor \frac{2026}{5^k} \right\rfloor = 405 + 81 + 16 + 3 = 505.$$`,
-    ],
-  },
-  {
-    slug: "the-lockers",
-    number: 6,
-    title: "The Lockers",
-    topic: "Number theory · Divisors",
-    difficulty: 1,
-    statement: [
-      tex`A hallway has $2026$ closed lockers numbered $1$ to $2026$. Student $k$ walks by and toggles every locker whose number is a multiple of $k$, for $k = 1, 2, \dots, 2026$.`,
-      tex`How many lockers are open at the end?`,
-    ],
-    answerFormat: "An integer",
-    answer: 45,
-    hints: [
-      tex`Locker $n$ is toggled once for each divisor of $n$.`,
-      tex`Which numbers have an odd number of divisors?`,
-    ],
-    solution: [
-      tex`Divisors pair up as $d \leftrightarrow n/d$. The pairing fails only when $d = n/d$, so $n$ has an odd number of divisors iff $n$ is a perfect square.`,
-      tex`Open lockers are the squares up to $2026$. Since $45^2 = 2025 \le 2026 < 46^2$, there are $\boxed{45}$.`,
-    ],
-  },
-  {
     slug: "staying-below",
-    number: 7,
+    number: 4,
     title: "Staying Below the Line",
     topic: "Combinatorics · Lattice paths",
     difficulty: 3,
@@ -185,7 +132,7 @@ the sixth Catalan number, $C_n = \frac{1}{n+1}\binom{2n}{n}$.`,
   },
   {
     slug: "sum-of-squares-over-powers",
-    number: 8,
+    number: 5,
     title: "A Series Worth Knowing",
     topic: "Analysis · Generating functions",
     difficulty: 3,
@@ -203,7 +150,7 @@ $$\sum_{n\ge1} n x^n = \frac{x}{(1-x)^2}, \qquad \sum_{n\ge1} n^2 x^n = \frac{x(
   },
   {
     slug: "the-basel-double-integral",
-    number: 9,
+    number: 6,
     title: "Basel in Disguise",
     topic: "Analysis · Integrals",
     difficulty: 4,
@@ -222,7 +169,117 @@ $$\sum_{n\ge1} n x^n = \frac{x}{(1-x)^2}, \qquad \sum_{n\ge1} n^2 x^n = \frac{x(
       tex`Expanding and exchanging sum and integral (justified by monotone convergence):
 $$\int_0^1\!\!\int_0^1 \sum_{k\ge0} (xy)^k \,dx\,dy = \sum_{k\ge0} \frac{1}{(k+1)^2} = \zeta(2).$$`,
       tex`Euler's resolution of the Basel problem gives $\zeta(2) = \dfrac{\pi^2}{6} \approx 1.6449$.`,
-      tex`Beukers used a close cousin of this integral to give a slick proof that $\zeta(2)$ — and $\zeta(3)$ — are irrational.`,
+      tex`Beukers used a close cousin of this integral to give a proof that $\zeta(2)$ and $\zeta(3)$ are irrational.`,
+    ],
+  },
+  {
+    slug: "the-sultans-glass",
+    number: 7,
+    title: "The Sultan's Glass",
+    topic: "Logic · Coordination",
+    difficulty: 3,
+    statement: [
+      tex`A sultan has captured $50$ wise men. A glass begins standing bottom down. Every minute, the sultan randomly calls one wise man, who may turn the glass upside down, set it bottom down, or do nothing. The same person may be called many times, and the process may continue indefinitely.`,
+      tex`When a called wise man correctly states that all $50$ wise men have visited the sultan at least once, everyone goes free. If the statement is wrong, everyone is put to death. The wise men may agree on a strategy once before being imprisoned in separate rooms. Design a strategy that allows them to go free.`,
+    ],
+    responseNote: "This is an open-ended strategy problem. State the protocol and explain why the final declaration must be correct.",
+    hints: [
+      tex`Choose one wise man to keep count. The other $49$ should each contribute exactly one signal.`,
+      tex`A non-counter who has not yet contributed should turn the glass upside down the first time he sees it bottom down. After contributing once, he should never change it again.`,
+      tex`Whenever the counter sees the glass upside down, he should set it bottom down and increase his count. When should he make the declaration?`,
+    ],
+    solution: [
+      tex`Before they are separated, the wise men designate one person as the counter. Each of the other $49$ wise men follows one rule: the first time he is called while the glass is bottom down, he turns it upside down. After he has done this once, he never moves the glass again.`,
+      tex`Whenever the counter is called and finds the glass upside down, he sets it bottom down and adds $1$ to his count. Otherwise, he does nothing. When his count reaches $49$, he announces that everyone has visited the sultan.`,
+      tex`Only a non-counter can create an upside-down signal, and each non-counter can do so at most once. Therefore, every increment represents a different one of the other $49$ wise men. A count of $49$ proves that all of them have visited. The counter has also visited because he is making the announcement, so all $50$ have been called at least once.`,
+      tex`Under random repeated selection, each waiting participant is eventually called while able to contribute, and the counter is eventually called to record each signal, with probability $1$. Thus the process terminates almost surely, and the declaration is never made early.`,
+    ],
+  },
+  {
+    slug: "four-points-two-distances",
+    number: 8,
+    title: "Four Points, Two Distances",
+    topic: "Geometry · Classification",
+    difficulty: 4,
+    statement: [
+      tex`Place four distinct points in the plane so that the six distances between pairs of points take exactly two values. Two arrangements count as the same if one can be obtained from the other by translating, rotating, reflecting, or uniformly scaling the plane.`,
+      tex`How many different arrangements are possible? One example is an equilateral triangle together with its center.`,
+    ],
+    answerFormat: "An integer",
+    answer: 6,
+    hints: [
+      tex`Color each of the six segments according to which of the two lengths it has. Classify the resulting two-colorings of $K_4$ before imposing the geometry.`,
+      tex`Consider the possible splits of the six segments between the two lengths: $5+1$, $4+2$, and $3+3$.`,
+      tex`The six realizations include a square, four vertices of a regular pentagon, an equilateral triangle with its center, and two equilateral triangles sharing an edge. Two less familiar configurations begin with an equilateral triangle and put the fourth point on its axis of symmetry.`,
+    ],
+    solution: [
+      tex`There are $\boxed{6}$ arrangements up to similarity. Classifying the two-colored edges of $K_4$ reduces the possibilities to the splits $5+1$, $4+2$, and $3+3$; the other edge patterns cannot be realized by four distinct planar points.`,
+      tex`The $5+1$ case gives two equilateral triangles sharing an edge. The $4+2$ case gives a square and two additional configurations. For the latter two, take an equilateral triangle with base endpoints $(-\tfrac12,0)$ and $(\tfrac12,0)$ and apex $(0,\tfrac{\sqrt3}{2})$. The fourth point is either $(0,\tfrac{\sqrt3}{2}+1)$ or $(0,\tfrac{\sqrt3}{2}-1)$.`,
+      tex`The $3+3$ case gives an equilateral triangle with its center and four vertices of a regular pentagon. Each listed arrangement has exactly two distances, and the edge-color classification shows that the list is complete.`,
+    ],
+  },
+  {
+    slug: "blindfolded-coins",
+    number: 9,
+    title: "Blindfolded Coins",
+    topic: "Logic · Invariants",
+    difficulty: 2,
+    statement: [
+      tex`Ten coins are on a table, with exactly five showing heads and five showing tails. You are blindfolded. You may touch and move the coins, but you cannot determine which side of any coin is facing up. You may flip any coins any number of times.`,
+      tex`How can you divide the coins into two piles containing the same number of heads?`,
+    ],
+    responseNote: "This is a strategy problem. Describe the construction and explain why the head counts agree.",
+    hints: [
+      tex`Separate any five coins from the other five. You do not need to know how many heads are in either pile.`,
+      tex`Flip every coin in one of the two piles.`,
+    ],
+    solution: [
+      tex`Choose any five coins for the first pile and place the remaining five in the second pile. Flip all five coins in the first pile.`,
+      tex`Suppose the first pile originally contained $h$ heads. It then contained $5-h$ tails, while the second pile contained the remaining $5-h$ heads. After every coin in the first pile is flipped, its $5-h$ tails become heads. Both piles therefore contain exactly $5-h$ heads.`,
+    ],
+  },
+  {
+    slug: "chessboard-multiples-of-ten",
+    number: 10,
+    title: "Multiples of Ten",
+    topic: "Invariants · Chessboards",
+    difficulty: 4,
+    statement: [
+      tex`Every square of an $8\times 8$ chessboard contains a positive integer. In one move, choose a contiguous $3\times3$ or $4\times4$ square and increase every number in it by $1$.`,
+      tex`Is it always possible to make every number on the board a multiple of $10$?`,
+    ],
+    responseNote: "Decide whether the claim is always true. A complete answer should provide either a construction or an invariant and counterexample.",
+    hints: [
+      tex`It is enough to find an obstruction modulo $2$, since every multiple of $10$ is even.`,
+      tex`Focus on rows $1,2,4,5,7,$ and $8$. Track the parity of the sum of all entries in those rows.`,
+    ],
+    solution: [
+      tex`It is not always possible. Consider the parity of the sum of all entries in rows $1,2,4,5,7,$ and $8$.`,
+      tex`Any three consecutive rows contain exactly two of these selected rows. A $3\times3$ move therefore changes the selected sum by $2\cdot3=6$, which is even. A $4\times4$ move changes it by four times some integer, which is also even. Thus this parity is invariant.`,
+      tex`Start with $10$ in every square except for one square in a selected row, where the entry is $1$. The invariant is odd. If every entry became a multiple of $10$, the selected sum would be even, which is impossible. Therefore the answer is no.`,
+    ],
+  },
+  {
+    slug: "reciprocal-cubes",
+    number: 11,
+    title: "Reciprocal Cubes",
+    topic: "Algebra · Identities",
+    difficulty: 2,
+    statement: [
+      tex`Let $x$ be positive and suppose $$x^2+\frac{1}{x^2}=2019.$$ Find $$x^3+\frac{1}{x^3}.$$`,
+    ],
+    answerFormat: "An exact expression, such as 2018*sqrt(2021)",
+    answer: 2018 * Math.sqrt(2021),
+    hints: [
+      tex`First find $x+\frac1x$ by squaring it. Positivity determines the sign.`,
+      tex`Use $\left(x+\frac1x\right)^3=x^3+\frac1{x^3}+3\left(x+\frac1x\right)$.`,
+    ],
+    solution: [
+      tex`Since $x>0$,
+$$\left(x+\frac1x\right)^2=x^2+2+\frac1{x^2}=2021,$$
+so $x+\frac1x=\sqrt{2021}$.`,
+      tex`Therefore
+$$x^3+\frac1{x^3}=\left(x+\frac1x\right)^3-3\left(x+\frac1x\right)=\sqrt{2021}(2021-3)=\boxed{2018\sqrt{2021}}.$$`,
     ],
   },
 ];

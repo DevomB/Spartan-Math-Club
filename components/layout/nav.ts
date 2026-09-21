@@ -1,10 +1,8 @@
-export type NavItem = { href: string; label: string; accent?: boolean };
+export type NavItem = { href: string; label: string };
 
 export const primaryNav: NavItem[] = [
-  { href: "/#about", label: "About" },
+  { href: "/about", label: "About" },
   { href: "/events", label: "Events" },
-  { href: "/problems", label: "Problems" },
-  { href: "/consulting", label: "Consulting", accent: true },
+  { href: "/applied-math", label: "Applied Math" },
+  { href: "/join", label: "Join" },
 ];
-
-export const joinNav: NavItem = { href: "/join", label: "Join the club" };

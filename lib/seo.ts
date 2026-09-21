@@ -3,7 +3,7 @@ import { site } from "@/content/site";
 import { clubEmail, socialLinks } from "@/lib/links";
 import type { Metadata, MetadataRoute } from "next";
 
-export const PUBLIC_PATHS = ["/", "/events", "/problems", "/consulting", "/join", "/privacy"] as const;
+export const PUBLIC_PATHS = ["/", "/about", "/events", "/applied-math", "/problems", "/join", "/privacy"] as const;
 
 /** Origin used for canonical URLs: env override, then Vercel production URL, then config. */
 export function siteOrigin(): string {
@@ -43,7 +43,7 @@ export function rootMetadata(): Metadata {
   return {
     metadataBase: new URL(`${siteOrigin()}/`),
     title: {
-      default: `${site.name} — ${site.tagline}`,
+      default: `${site.name}: ${site.tagline}`,
       template: `%s · ${site.name}`,
     },
     description: site.description,

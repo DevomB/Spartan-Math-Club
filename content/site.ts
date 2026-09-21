@@ -19,14 +19,14 @@ export type SiteLinks = {
 };
 
 export const site = {
-  name: "Spartan Math Club",
+  name: "Spartan Mathematics Club",
   shortName: "SMC",
   campus: "San José State University",
-  tagline: "For all problems, there exists a Monday.",
+  tagline: "For all problems, there exists an SMC meeting.",
   description:
-    "Spartan Math Club is San José State's community for people who find a hard problem more fun than an easy answer — problem solving, proofs, competitions, quant games, and a student-run mathematical consulting division.",
+    "Spartan Mathematics Club is an SJSU student organization for weekly problem solving, mentorship, career readiness, mathematical events, and applied mathematics.",
   disclosure:
-    "Spartan Math Club is a student-led Recognized Student Organization at San José State University. Recognition does not imply university endorsement of every statement or activity on this site.",
+    "Spartan Mathematics Club is a student-led Recognized Student Organization at San José State University. Recognition does not imply university endorsement of every statement or activity on this site.",
   /**
    * Flip to `true` when the club is ready for search engines. While false,
    * every page is noindex and robots.txt disallows crawling.
@@ -35,9 +35,12 @@ export const site = {
   /** Canonical production origin. `NEXT_PUBLIC_SITE_URL` overrides it. */
   origin: "https://spartan-math-club.vercel.app",
   links: {
+    email: "spartanmathematics@gmail.com",
+    consultingEmail: "spartanmathematics@gmail.com",
+    discord: "https://discord.gg/Y7hpArMN6",
     github: "https://github.com/DevomB/Spartan-Math-Club",
   } satisfies SiteLinks as SiteLinks,
-  privacyUpdatedOn: "September 16, 2026",
+  privacyUpdatedOn: "September 19, 2026",
   /** Footer year. Do not derive from Date.now() during render. */
   year: 2026,
 } as const;

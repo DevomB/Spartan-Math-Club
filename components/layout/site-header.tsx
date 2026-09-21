@@ -1,15 +1,14 @@
 "use client";
 
-import { CrestLockup } from "@/components/brand/crest";
+import { LambdaLogo } from "@/components/brand/lambda-logo";
 import { MobileMenu } from "@/components/layout/mobile-menu";
-import { joinNav, primaryNav } from "@/components/layout/nav";
+import { primaryNav } from "@/components/layout/nav";
 import { cn } from "@/lib/cn";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState } from "react";
 
-/** `glyphs` maps nav hrefs to pre-typeset decorative symbols (aria-hidden). */
-export function SiteHeader({ glyphs = {} }: { glyphs?: Record<string, ReactNode> }) {
+export function SiteHeader() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
 
@@ -26,8 +25,14 @@ export function SiteHeader({ glyphs = {} }: { glyphs?: Record<string, ReactNode>
   return (
     <header className={cn("site-header", scrolled && "is-scrolled")}>
       <div className="header-inner">
-        <Link className="wordmark" href="/" aria-label="Spartan Math Club, home">
-          <CrestLockup />
+        <Link className="wordmark" href="/" aria-label="Spartan Mathematics Club, home">
+          <span className="wordmark-mark" aria-hidden="true">
+            <LambdaLogo className="wordmark-logo" />
+          </span>
+          <span className="wordmark-copy">
+            <strong>Spartan Mathematics Club</strong>
+            <small>San José State University</small>
+          </span>
         </Link>
         <nav aria-label="Primary" className="nav-desktop">
           <ul>
@@ -35,27 +40,16 @@ export function SiteHeader({ glyphs = {} }: { glyphs?: Record<string, ReactNode>
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className={cn("nav-link", item.accent && "nav-link--accent")}
+                  className="nav-link"
                   aria-current={isActive(item.href) ? "page" : undefined}
                 >
-                  {glyphs[item.href] ? <span className="nav-glyph">{glyphs[item.href]}</span> : null}
                   {item.label}
                 </Link>
               </li>
             ))}
-            <li>
-              <Link
-                href={joinNav.href}
-                className="btn btn--gold btn--sm"
-                aria-current={isActive(joinNav.href) ? "page" : undefined}
-              >
-                {glyphs[joinNav.href] ? <span className="nav-glyph">{glyphs[joinNav.href]}</span> : null}
-                <span>{joinNav.label}</span>
-              </Link>
-            </li>
           </ul>
         </nav>
-        <MobileMenu items={[...primaryNav, joinNav]} glyphs={glyphs} />
+        <MobileMenu items={primaryNav} />
       </div>
     </header>
   );

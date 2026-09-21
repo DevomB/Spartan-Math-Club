@@ -1,12 +1,11 @@
 "use client";
 
 import type { NavItem } from "@/components/layout/nav";
-import { cn } from "@/lib/cn";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef } from "react";
 
-export function MobileMenu({ items, glyphs = {} }: { items: NavItem[]; glyphs?: Record<string, ReactNode> }) {
+export function MobileMenu({ items }: { items: NavItem[] }) {
   const detailsRef = useRef<HTMLDetailsElement>(null);
   const pathname = usePathname();
 
@@ -51,18 +50,16 @@ export function MobileMenu({ items, glyphs = {} }: { items: NavItem[]; glyphs?: 
       <div className="mobile-nav-sheet">
         <nav aria-label="Mobile">
           <ol>
-            {items.map((item, index) => (
+            {items.map((item) => (
               <li key={item.href}>
-                <Link href={item.href} onClick={close} className={cn(item.accent && "is-accent")}>
-                  <span className="mobile-index">{String(index + 1).padStart(2, "0")}</span>
-                  <span className="nav-glyph" aria-hidden="true">{glyphs[item.href] ?? null}</span>
+                <Link href={item.href} onClick={close}>
                   {item.label}
                 </Link>
               </li>
             ))}
           </ol>
         </nav>
-        <p className="mobile-foot">For all problems, there exists a Monday.</p>
+        <p className="mobile-foot">For all problems, there exists an SMC meeting.</p>
       </div>
     </details>
   );

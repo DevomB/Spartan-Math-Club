@@ -12,7 +12,7 @@ type Props = {
   className?: string;
 };
 
-export function Button({ href, label, variant = "gold", external, arrow = true, className }: Props) {
+export function Button({ href, label, variant = "gold", external, arrow = false, className }: Props) {
   const classes = cn("btn", `btn--${variant}`, className);
   const content = (
     <>

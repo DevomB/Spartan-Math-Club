@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-/** Dark title block used at the top of inner pages. */
+/** Page introduction used by the archive and policy pages. */
 export function PageHero({
   eyebrow,
   title,
@@ -13,8 +13,7 @@ export function PageHero({
   aside?: ReactNode;
 }) {
   return (
-    <section className="page-hero surface-ink" aria-labelledby="page-title">
-      <div className="hero-grid-bg" aria-hidden="true" />
+    <section className="page-hero" aria-labelledby="page-title">
       <div className="container page-hero-layout">
         <div className="page-hero-copy">
           <p className="eyebrow">

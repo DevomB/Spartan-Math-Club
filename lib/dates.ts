@@ -33,7 +33,7 @@ export const fmt = {
   short: (iso: string) => format(iso, { weekday: "short", month: "short", day: "numeric" }),
   monthDay: (iso: string) => format(iso, { month: "short", day: "numeric" }),
   clock: (iso: string) => format(iso, { hour: "numeric", minute: "2-digit" }),
-  timeRange: (start: string, end: string) => `${fmt.clock(start)} – ${fmt.clock(end)} PT`,
+  timeRange: (start: string, end: string) => `${fmt.clock(start)} to ${fmt.clock(end)} PT`,
   weekdayName: (day: Weekday) => WEEKDAY_NAMES[day],
 };
 
@@ -271,7 +271,7 @@ function calendar(lines: string[], withTimezone: boolean): string {
   return [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//Spartan Math Club//Events//EN",
+    "PRODID:-//Spartan Mathematics Club//Events//EN",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
     ...(withTimezone ? VTIMEZONE : []),
@@ -316,7 +316,7 @@ export function meetingIcs(meeting: WeeklyMeeting, url: string, stamp: number): 
     `DTEND;TZID=${TIME_ZONE}:${local(meeting.startsOn, meeting.endTime)}`,
     `RRULE:${rule.join(";")}`,
     ...(meeting.skipDates ?? []).map((date) => `EXDATE;TZID=${TIME_ZONE}:${local(date, meeting.startTime)}`),
-    `SUMMARY:${icsText(`${meeting.title} — Spartan Math Club`)}`,
+    `SUMMARY:${icsText(`${meeting.title}: Spartan Mathematics Club`)}`,
     `LOCATION:${icsText(meeting.location)}`,
     `DESCRIPTION:${icsText(`${meeting.summary}\n\n${url}`)}`,
     `URL:${url}`,

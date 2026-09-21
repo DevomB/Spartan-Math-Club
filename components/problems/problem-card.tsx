@@ -14,7 +14,7 @@ export function ProblemMeta({ problem }: { problem: Problem }) {
       <span className="problem-topic">{problem.topic}</span>
       <span className={cn("difficulty", `difficulty--${problem.difficulty}`)} title={difficultyName[problem.difficulty]}>
         {difficultyLabel[problem.difficulty]}
-        <span className="visually-hidden"> — {difficultyName[problem.difficulty]}</span>
+        <span className="visually-hidden">, {difficultyName[problem.difficulty]}</span>
       </span>
       <SolvedBadge slug={problem.slug} />
     </p>
@@ -45,13 +45,17 @@ export function ProblemCard({
         ))}
       </div>
 
-      <AnswerCheck
-        slug={problem.slug}
-        answer={problem.answer}
-        tolerance={problem.tolerance}
-        format={problem.answerFormat}
-        glyphs={{ models: <Tex>{String.raw`\models`}</Tex>, notModels: <Tex>{String.raw`\nvDash`}</Tex> }}
-      />
+      {problem.answer !== undefined && problem.answerFormat ? (
+        <AnswerCheck
+          slug={problem.slug}
+          answer={problem.answer}
+          tolerance={problem.tolerance}
+          format={problem.answerFormat}
+          glyphs={{ models: <Tex>{String.raw`\models`}</Tex>, notModels: <Tex>{String.raw`\nvDash`}</Tex> }}
+        />
+      ) : problem.responseNote ? (
+        <p className="answer answer--open">{problem.responseNote}</p>
+      ) : null}
 
       <div className="problem-reveals">
         {problem.hints.map((hint, index) => (

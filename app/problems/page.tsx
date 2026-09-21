@@ -1,14 +1,13 @@
-import { Tex } from "@/components/math/tex";
 import { ProblemCard, problemNumber } from "@/components/problems/problem-card";
 import { SolvedBadge } from "@/components/problems/answer-check";
 import { PageHero } from "@/components/ui/page-hero";
-import { difficultyLabel, difficultyName, problems } from "@/content/problems";
+import { difficultyLabel, problems } from "@/content/problems";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata({
   title: "Problem Archive",
   description:
-    "Probability, number theory, combinatorics, and analysis problems from the Spartan Math Club. Check your answer instantly, take a hint, or read the full solution.",
+    "Probability, number theory, combinatorics, and analysis problems from the Spartan Mathematics Club. Check an answer, take a hint, or read a solution.",
   path: "/problems",
 });
 
@@ -27,39 +26,20 @@ export default function ProblemsPage() {
     <main id="content" tabIndex={-1}>
       <PageHero
         eyebrow="Problem archive"
-        title={
-          <>
-            Being stuck is <em>the job.</em>
-          </>
-        }
-        aside={
-          <div className="difficulty-legend">
-            <p className="difficulty-legend-title">Difficulty, asymptotically</p>
-            <dl>
-              {([1, 2, 3, 4] as const).map((level) => (
-                <div key={level}>
-                  <dt className={`difficulty difficulty--${level}`}>{difficultyLabel[level]}</dt>
-                  <dd>{difficultyName[level]}</dd>
-                </div>
-              ))}
-            </dl>
-          </div>
-        }
+        title="Problems from our meetings."
       >
         <p className="hero-body">
-          {problems.length} problems in the style of our problem sessions — the classics every quant interview and
-          olympiad has borrowed, and a few with 2026 in them. Answers accept expressions like{" "}
+          {problems.length} problems for individual practice or group discussion. Answers accept expressions like{" "}
           <code>17/4</code>, <code>pi^2/6</code>, or <code>sqrt(2)</code>, and are checked in your browser.
         </p>
       </PageHero>
 
       <section className="section surface-paper" aria-label="Problems">
         <div className="container problems-layout">
-          {/* Collapsed on phones, where nine rows of contents pushed the first problem off
-              the screen. From 35em up the script below opens it for real, before paint, so
-              the disclosure state matches what everyone sees — CSS alone would leave a
-              screen reader with a collapsed list that sighted readers can see. */}
-          <details className="problem-index" id={INDEX_ID}>
+          {/* Collapsed on phones, where the contents would push the first problem down.
+              From 35em up the script opens it before paint so its semantic state and
+              visible state remain consistent. */}
+          <details className="problem-index" id={INDEX_ID} suppressHydrationWarning>
             <summary aria-label={`Contents: ${problems.length} problems`}>
               <span className="kicker">
                 <span className="kicker-index">§</span>
@@ -81,7 +61,6 @@ export default function ProblemsPage() {
                 </li>
               ))}
             </ol>
-            <Tex className="problem-index-note">{String.raw`\text{Solved} \subseteq \text{Attempted} \subseteq \text{Problems}`}</Tex>
           </details>
           <script dangerouslySetInnerHTML={{ __html: INDEX_SCRIPT }} />
 
@@ -90,7 +69,7 @@ export default function ProblemsPage() {
               <ProblemCard key={problem.slug} problem={problem} />
             ))}
             <p className="problem-end">
-              End of archive — for now. {problemNumber(problems[problems.length - 1])} won&apos;t be the last.
+              End of the current archive. {problemNumber(problems[problems.length - 1])} will not be the last.
             </p>
           </div>
         </div>
