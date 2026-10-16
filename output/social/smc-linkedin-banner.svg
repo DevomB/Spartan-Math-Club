@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="4200" height="700" viewBox="0 0 4200 700">
+  <title>Spartan Mathematics Club LinkedIn banner</title>
+  <desc>A blue and gold club banner with the SMC lambda mark, a mathematical statement, and Tower Hall.</desc>
+
+  <rect width="4200" height="700" fill="#294e5f"/>
+  <image
+    x="2100"
+    y="0"
+    width="2100"
+    height="700"
+    preserveAspectRatio="xMidYMid slice"
+    xlink:href="file:///Users/visha/Documents/SMCG/output/social/smc-linkedin-background.png"
+  />
+  <rect x="2092" width="8" height="700" fill="#d7a737"/>
+
+  <!-- Circular Lambda logo -->
+  <g transform="translate(260 166) scale(3.68)">
+    <circle
+      cx="50"
+      cy="50"
+      r="44"
+      fill="none"
+      stroke="#d7a737"
+      stroke-width="4.5"
+      stroke-linecap="round"
+      stroke-dasharray="246 31"
+      transform="rotate(-34 50 50)"
+    />
+    <path
+      d="M39 29c5-7 13-4 15 3M54 32 38 65M54 32c6 16 12 28 23 34"
+      fill="none"
+      stroke="#f8f7f3"
+      stroke-width="9"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+    <text
+      x="50"
+      y="85"
+      fill="#f8f7f3"
+      font-family="Arial, Helvetica, sans-serif"
+      font-size="19"
+      font-weight="700"
+      letter-spacing="0.75"
+      text-anchor="middle"
+    >SMC</text>
+  </g>
+
+  <g font-family="Arial, Helvetica, sans-serif">
+    <text x="760" y="280" fill="#f8f7f3" font-size="94" font-weight="700" letter-spacing="-2">
+      Spartan Mathematics Club
+    </text>
+    <text x="765" y="368" fill="#d7a737" font-size="45" font-weight="600" letter-spacing="1.5">
+      San José State University
+    </text>
+  </g>
+
+  <line x1="765" y1="418" x2="1900" y2="418" stroke="#7894a1" stroke-width="2"/>
+  <text
+    x="765"
+    y="492"
+    fill="#dce5e9"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="35"
+  >∀p ∈ Problems, ∃m ∈ SMC meetings: m ⊢ p</text>
+</svg>

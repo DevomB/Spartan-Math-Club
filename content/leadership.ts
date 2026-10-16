@@ -12,6 +12,7 @@ export const leadership: Leader[] = [
     role: "President",
     degree: "B.S. Applied Mathematics",
     initials: "AG",
+    image: "/leadership/aarav-ghai.png",
   },
   {
     name: "Vishal Makaram",

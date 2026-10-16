@@ -1,5 +1,6 @@
 import { ProblemCard, problemNumber } from "@/components/problems/problem-card";
 import { SolvedBadge } from "@/components/problems/answer-check";
+import { ResponsiveProblemIndex } from "@/components/problems/responsive-problem-index";
 import { PageHero } from "@/components/ui/page-hero";
 import { difficultyLabel, problems } from "@/content/problems";
 import { pageMetadata } from "@/lib/seo";
@@ -12,14 +13,6 @@ export const metadata = pageMetadata({
 });
 
 const INDEX_ID = "problem-contents";
-
-/**
- * Runs where it sits in the markup, before first paint, so the contents list is already
- * open on wide screens: no flash, no layout shift, and the element's real state always
- * matches what is on screen. Without JS the list stays collapsed behind its summary,
- * which still works.
- */
-const INDEX_SCRIPT = `(function(){var d=document.getElementById(${JSON.stringify(INDEX_ID)});if(!d)return;var m=matchMedia("(min-width: 35em)");var s=function(){d.open=m.matches};s();m.addEventListener("change",s)})();`;
 
 export default function ProblemsPage() {
   return (
@@ -36,10 +29,9 @@ export default function ProblemsPage() {
 
       <section className="section surface-paper" aria-label="Problems">
         <div className="container problems-layout">
-          {/* Collapsed on phones, where the contents would push the first problem down.
-              From 35em up the script opens it before paint so its semantic state and
-              visible state remain consistent. */}
-          <details className="problem-index" id={INDEX_ID} suppressHydrationWarning>
+          {/* Collapsed on phones, where the contents would push the first problem down,
+              and opened automatically from 35em up. */}
+          <ResponsiveProblemIndex className="problem-index" id={INDEX_ID}>
             <summary aria-label={`Contents: ${problems.length} problems`}>
               <span className="kicker">
                 <span className="kicker-index">§</span>
@@ -61,8 +53,7 @@ export default function ProblemsPage() {
                 </li>
               ))}
             </ol>
-          </details>
-          <script dangerouslySetInnerHTML={{ __html: INDEX_SCRIPT }} />
+          </ResponsiveProblemIndex>
 
           <div className="problem-stack">
             {problems.map((problem) => (

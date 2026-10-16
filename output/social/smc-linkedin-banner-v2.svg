@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="4200" height="700" viewBox="0 0 4200 700">
+  <title>Spartan Mathematics Club LinkedIn banner</title>
+  <desc>A unified panoramic view of Tower Hall with the club name centered over the photograph.</desc>
+
+  <image
+    x="0"
+    y="0"
+    width="4200"
+    height="700"
+    preserveAspectRatio="xMidYMin slice"
+    xlink:href="file:///Users/visha/Documents/SMCG/output/social/smc-linkedin-background.png"
+  />
+
+  <!-- A single flat tint keeps the photograph and typography visually unified. -->
+  <rect width="4200" height="700" fill="#294e5f" opacity="0.68"/>
+
+  <g font-family="Arial, Helvetica, sans-serif" text-anchor="middle">
+    <text x="2100" y="280" fill="#d7a737" font-size="48" font-weight="600" letter-spacing="4">
+      SAN JOSÉ STATE UNIVERSITY
+    </text>
+    <text x="2100" y="410" fill="#f8f7f3" font-size="116" font-weight="700" letter-spacing="-2">
+      Spartan Mathematics Club
+    </text>
+    <line x1="1540" y1="468" x2="2660" y2="468" stroke="#d7a737" stroke-width="7"/>
+  </g>
+</svg>

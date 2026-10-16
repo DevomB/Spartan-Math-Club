@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="4200" height="700" viewBox="0 0 4200 700">
+  <title>Spartan Mathematics Club LinkedIn Page banner</title>
+  <desc>An architectural pen-and-watercolor view of the Tower Hall lawn with the club name integrated into the open sky.</desc>
+
+  <!-- Proportional crop from the 3:1 source keeps Tower Hall and the lawn in view. -->
+  <image
+    x="0"
+    y="-135"
+    width="4200"
+    height="1400"
+    preserveAspectRatio="xMidYMid meet"
+    xlink:href="file:///Users/visha/Documents/SMCG/output/social/smc-linkedin-sketch-background.png"
+  />
+
+  <g text-anchor="start">
+    <text
+      x="350"
+      y="310"
+      fill="#294e5f"
+      font-family="Georgia, 'Times New Roman', serif"
+      font-size="108"
+      font-weight="600"
+      letter-spacing="-1.5"
+    >Spartan Mathematics Club</text>
+    <line x1="350" y1="357" x2="890" y2="357" stroke="#b27b25" stroke-width="7"/>
+    <text
+      x="350"
+      y="430"
+      fill="#3f6577"
+      font-family="Arial, Helvetica, sans-serif"
+      font-size="42"
+      font-weight="600"
+      letter-spacing="2.5"
+    >SAN JOSÉ STATE UNIVERSITY</text>
+  </g>
+</svg>
