@@ -1,5 +1,6 @@
 import { LeadershipList } from "@/components/leadership/leadership-list";
 import { Tex } from "@/components/math/tex";
+import { PartnerList } from "@/components/partners/partner-list";
 import { Reveal } from "@/components/ui/reveal";
 import { appliedMath } from "@/content/applied-math";
 import { events, weeklyMeetings } from "@/content/events";
@@ -184,6 +185,20 @@ export default function HomePage() {
               <p className="large-copy">{appliedMath.summary}</p>
               <p>{appliedMath.currentWork}</p>
               <Link className="text-link" href="/applied-math">Explore the Applied Math track</Link>
+            </div>
+          </div>
+        </section>
+      </Reveal>
+
+      <Reveal>
+        <section className="section section--muted" id="partners" aria-labelledby="partners-title">
+          <div className="container split-layout split-layout--top">
+            <header className="section-intro">
+              <p className="section-label">Partners</p>
+              <h2 id="partners-title">Organizations supporting the club.</h2>
+            </header>
+            <div className="section-copy">
+              <PartnerList />
             </div>
           </div>
         </section>

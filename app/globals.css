@@ -790,6 +790,38 @@ code {
   margin-bottom: 2rem;
 }
 
+/* Partners */
+
+.partner-list {
+  display: grid;
+  gap: 2.5rem;
+}
+
+.partner-list li {
+  display: grid;
+  gap: 1.1rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.partner-logo {
+  width: fit-content;
+}
+
+.partner-logo:hover {
+  outline: 1px solid currentColor;
+  outline-offset: 6px;
+}
+
+.partner-logo img {
+  width: clamp(11rem, 28vw, 16rem);
+  height: auto;
+}
+
+.partner-list p {
+  color: var(--ink-soft);
+}
+
 /* Definition and discipline rows */
 
 .definition-list,
